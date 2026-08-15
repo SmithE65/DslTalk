@@ -1,0 +1,56 @@
+﻿.slide-deck {
+    margin: 0;
+    overflow: hidden;
+}
+
+.slide {
+    height: calc(100vh - 4.5rem);
+    padding: 3rem 5rem;
+    overflow: hidden;
+}
+
+.slide-navigation {
+    height: 4.5rem;
+    padding: .75rem 1rem;
+    border-top: 1px solid #ccc;
+}
+
+.slide h1 {
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+}
+
+.slide h2 {
+    font-size: 2.5rem;
+}
+
+.slide p,
+.slide li {
+    font-size: 2rem;
+    line-height: 1.35;
+}
+
+.slide-list li {
+    margin-bottom: 1rem;
+}
+
+.slide-code {
+    font-size: 1.5rem;
+}
+
+.slide-center {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.slide-callout {
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+.slide-small {
+    font-size: 1.25rem;
+}

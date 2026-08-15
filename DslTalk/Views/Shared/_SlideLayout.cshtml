@@ -1,0 +1,95 @@
+@model SlideViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.CurrentSlide.Title</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/slides.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="slide-deck">
+
+    <main class="slide">
+        @RenderBody()
+    </main>
+
+    <nav class="slide-navigation">
+        <div class="container-fluid">
+            <div class="row align-items-center g-2">
+
+                <div class="col-auto">
+                    @if (Model.PreviousSlide != null)
+                    {
+                        <a class="btn btn-outline-secondary"
+                            href="/slides/@Model.PreviousSlide.Number">Previous</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-secondary disabled">Previous</button>
+                    }
+                </div>
+
+                <div class="col">
+                    <select id="slide-jump"
+                            class="form-select">
+                        @foreach (var slide in Model.Slides)
+                        {
+                            <option value="@slide.Number"
+                                    selected="@(slide.Number == Model.CurrentSlide.Number)">
+                                @slide.Number. @slide.Title
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-auto text-secondary">
+                    @Model.CurrentSlide.Number / @Model.Slides.Count
+                </div>
+
+                <div class="col-auto">
+                    @if (Model.NextSlide != null)
+                    {
+                        <a class="btn btn-outline-secondary"
+                            href="/slides/@Model.NextSlide.Number">Next</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-secondary disabled">Next</button>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        document
+            .getElementById("slide-jump")
+            .addEventListener("change", e => {
+                window.location.href = `/slides/${e.target.value}`;
+            });
+
+        document
+            .addEventListener("keydown", e=> {
+                if (e.target.matches("input, textarea, select")) {
+                    return;
+                }
+
+                    if (e.key === "ArrowLeft" && @Json.Serialize(Model.PreviousSlide is not null)) {
+                    window.location.href = `/slides/@Model.PreviousSlide?.Number`;
+                }
+
+                if (e.key === "ArrowRight" && @Json.Serialize(Model.NextSlide is not null)) {
+                    window.location.href = `/slides/@Model.NextSlide?.Number`;
+                }
+            });
+    </script>
+
+</body>
+</html>
