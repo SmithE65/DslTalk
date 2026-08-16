@@ -11,20 +11,46 @@ public class CalculatorController : ControllerBase
     [HttpPost]
     public IActionResult Interpret([FromBody] InterpretRequestDto request)
     {
-        var scanner = new Scanner(request.DslText);
-        var tokens = scanner.Scan();
-        var parser = new Parser(tokens);
-        var expression = parser.Parse();
-        var interpreter = new Interpreter(expression);
-        var result = interpreter.Interpret();
-
-        return Ok(new InterpretResultDto(
+        var resultDto = new InterpretResultDto(
             DslText: request.DslText,
             InputText: request.Input,
-            Tokens: [.. tokens.Select(ToTokenDto)],
-            Ast: ToAstNodeDto(expression),
-            ResultText: result.ToString(),
-            Diagnostic: null));
+            Tokens: [],
+            Ast: null,
+            ResultText: null,
+            Diagnostic: null);
+
+        IEnumerable<TokenDto> tokenDtos = [];
+        AstNodeDto? astNodeDto = null;
+        double? result = null;
+
+        try
+        {
+            var scanner = new Scanner(request.DslText);
+            var tokens = scanner.Scan();
+            tokenDtos = tokens.Select(ToTokenDto);
+            var parser = new Parser(tokens);
+            var expression = parser.Parse();
+            astNodeDto = ToAstNodeDto(expression);
+            var interpreter = new Interpreter(expression);
+            result = interpreter.Interpret();
+        }
+        catch (ScanException scanEx)
+        {
+            var diag = new DiagnosticDto(
+                Phase: "Scanning",
+                Message: scanEx.Message);
+
+            resultDto = resultDto with { Diagnostic = diag };
+        }
+
+        resultDto = resultDto with
+        {
+            Tokens = [.. tokenDtos],
+            Ast = astNodeDto,
+            ResultText = result?.ToString(),
+        };
+
+        return Ok(resultDto);
     }
 
     private static TokenDto ToTokenDto(Token token)

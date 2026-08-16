@@ -5,6 +5,7 @@ public class Scanner(string source)
     private int _start = 0;
     private int _current = 0;
     private int _line = 1;
+    private int _lineChar = 0;
 
     private readonly string _source = source;
     private readonly List<Token> _tokens = [];
@@ -23,7 +24,11 @@ public class Scanner(string source)
 
     private bool IsEoF() => _current >= _source.Length;
 
-    private char Advance() => _source[_current++];
+    private char Advance()
+    {
+        _lineChar++;
+        return _source[_current++];
+    }
 
     private char Peek() => IsEoF() ? '\0' : _source[_current];
 
@@ -65,7 +70,12 @@ public class Scanner(string source)
                 }
                 else if (!char.IsWhiteSpace(c))
                 {
-                    throw new ScanException($"Unexpected character: {c}", _line);
+                    throw new ScanException($"{_line}:{_lineChar} Unexpected character: {c}", _line);
+                }
+                else if (c == '\n')
+                {
+                    _line++;
+                    _lineChar = 0;
                 }
                 break;
         }

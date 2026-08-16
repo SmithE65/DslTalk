@@ -132,6 +132,11 @@
 }
 
 .result-value {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font-family: var(--bs-font-monospace);
     font-size: 2.5rem;
     line-height: 1;

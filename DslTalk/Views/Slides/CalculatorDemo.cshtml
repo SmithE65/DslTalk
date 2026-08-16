@@ -63,12 +63,12 @@
 
 @section Scripts {
     <script type="module">
-        //import mermaid from '/lib/mermaid/mermaid.esm.min.mjs';
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.16.1/+esm'
 
-        // mermaid.initialize({
-        //     startOnLoad: false,
-        //     theme: 'neutral'
-        // });
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral'
+        });
 
         const expressionInput = document.getElementById('expressionInput');
         const evaluateButton = document.getElementById('evaluateButton');
@@ -108,8 +108,8 @@
         function renderTokens(model) {
             tokenStream.replaceChildren();
 
-            if (model.scannerError) {
-                renderError(tokenStream, model.scannerError);
+            if (model.diagnostic && model.diagnostic.phase === "Scanning") {
+                renderError(tokenStream, model.diagnostic.message);
                 return;
             }
 
@@ -136,13 +136,13 @@
                 return;
             }
 
-            if (!model.astMermaid) {
+            if (!model.ast) {
                 return;
             }
 
             const diagram = document.createElement('div');
             diagram.className = 'mermaid';
-            diagram.textContent = model.astMermaid;
+            diagram.textContent = astToMermaid(model.ast);
 
             astContainer.appendChild(diagram);
 
@@ -171,6 +171,66 @@
 
         function clearErrors() {
             resultValue.classList.remove('result-error');
+        }
+
+        function astToMermaid(root) {
+            if (!root) {
+                return "";
+            }
+
+            const lines = [
+                "flowchart LR"
+            ];
+
+            let nextId = 0;
+
+            function visit(node) {
+                const id = `n${nextId++}`;
+
+                lines.push(`    ${id}["${escapeMermaidLabel(formatNode(node))}"]`);
+
+                for (const child of node.children ?? []) {
+                    if (!child) {
+                        continue;
+                    }
+
+                    const childId = visit(child);
+                    lines.push(`    ${id} --> ${childId}`);
+                }
+
+                return id;
+            }
+
+            visit(root);
+
+            return lines.join("\n");
+        }
+
+        function formatNode(node) {
+            const parts = [];
+
+            if (node.kind) {
+                parts.push(node.kind);
+            }
+
+            if (node.label) {
+                parts.push(node.label);
+            }
+
+            for (const property of node.properties ?? []) {
+                const value = property.value ?? "null";
+                parts.push(`${property.name}: ${value}`);
+            }
+
+            return parts.join("\n");
+        }
+
+        function escapeMermaidLabel(value) {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;");
         }
 
         // Initial render.
