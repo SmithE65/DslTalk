@@ -54,3 +54,166 @@
 .slide-small {
     font-size: 1.25rem;
 }
+
+/* Demos */
+
+/* Calculator */
+
+.calculator-demo {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    gap: 1.25rem;
+}
+
+.demo-header h1 {
+    margin: 0;
+}
+
+/* Expression + result */
+
+.calculator-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: 2rem;
+    align-items: stretch;
+}
+
+.expression-panel,
+.result-panel,
+.token-panel,
+.ast-panel {
+    border: 1px solid rgba(128, 128, 128, .35);
+    border-radius: .75rem;
+}
+
+.expression-panel {
+    padding: 1rem 1.25rem;
+}
+
+    .expression-panel label,
+    .panel-label,
+    .token-panel h2,
+    .ast-panel h2 {
+        display: block;
+        margin: 0 0 .6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        opacity: .65;
+    }
+
+.expression-entry {
+    display: flex;
+    gap: .75rem;
+}
+
+.expression-input {
+    flex: 1;
+    min-width: 0;
+    padding: .6rem .85rem;
+    border: 0;
+    border-bottom: 2px solid rgba(128, 128, 128, .5);
+    outline: none;
+    font-family: var(--bs-font-monospace);
+    font-size: 1.75rem;
+}
+
+    .expression-input:focus {
+        border-bottom-color: currentColor;
+    }
+
+.result-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: .8rem 1.25rem;
+}
+
+.result-value {
+    font-family: var(--bs-font-monospace);
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 600;
+}
+
+.result-error {
+    font-size: 1.25rem;
+}
+
+
+/* Tokens */
+
+.token-panel {
+    padding: .8rem 1.25rem 1rem;
+}
+
+.token-stream {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    min-height: 2.5rem;
+    align-items: center;
+}
+
+.token {
+    display: inline-flex;
+    align-items: center;
+    padding: .35rem .65rem;
+    border: 1px solid rgba(128, 128, 128, .4);
+    border-radius: .4rem;
+    font-family: var(--bs-font-monospace);
+    font-size: 1.25rem;
+    cursor: help;
+}
+
+
+/* AST */
+
+.ast-panel {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: .8rem 1.25rem 1rem;
+}
+
+.ast-heading {
+    flex: 0 0 auto;
+}
+
+.ast-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+    .ast-container .mermaid {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ast-container svg {
+        max-width: 100% !important;
+        max-height: 100% !important;
+    }
+
+
+/* States */
+
+.empty-state {
+    font-size: 1.2rem;
+    font-style: italic;
+    opacity: .5;
+}
+
+.demo-error {
+    font-family: var(--bs-font-monospace);
+    font-size: 1.2rem;
+}

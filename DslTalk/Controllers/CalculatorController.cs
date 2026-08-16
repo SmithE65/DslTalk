@@ -8,7 +8,7 @@ namespace DslTalk.Controllers;
 [ApiController]
 public class CalculatorController : ControllerBase
 {
-    [HttpPost("interpret")]
+    [HttpPost]
     public IActionResult Interpret([FromBody] InterpretRequestDto request)
     {
         var scanner = new Scanner(request.DslText);

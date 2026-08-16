@@ -1,0 +1,179 @@
+﻿@model SlideViewModel
+
+@{
+    ViewData["Title"] = "Calculator";
+}
+
+<section class="demo-slide calculator-demo">
+    <header class="demo-header">
+        <div>
+            <h1>A Tiny Expression Language</h1>
+            <p class="slide-subtitle">
+                Scan → Parse → Interpret
+            </p>
+        </div>
+    </header>
+
+    <div class="calculator-summary">
+        <div class="expression-panel">
+            <label for="expressionInput">Expression</label>
+
+            <div class="expression-entry">
+                <input id="expressionInput"
+                       class="expression-input"
+                       type="text"
+                       value="2 + 3 * (4 - 1)"
+                       autocomplete="off"
+                       spellcheck="false" />
+
+                <button id="evaluateButton"
+                        class="btn btn-primary"
+                        type="button">
+                    Evaluate
+                </button>
+            </div>
+        </div>
+
+        <div class="result-panel">
+            <span class="panel-label">Result</span>
+            <output id="resultValue" class="result-value">
+                —
+            </output>
+        </div>
+    </div>
+
+    <section class="token-panel">
+        <h2>Tokens</h2>
+
+        <div id="tokenStream" class="token-stream">
+            <span class="empty-state">Evaluate an expression</span>
+        </div>
+    </section>
+
+    <section class="ast-panel">
+        <div class="ast-heading">
+            <h2>Abstract Syntax Tree</h2>
+        </div>
+
+        <div id="astContainer" class="ast-container">
+            <div class="empty-state">Evaluate an expression</div>
+        </div>
+    </section>
+</section>
+
+@section Scripts {
+    <script type="module">
+        //import mermaid from '/lib/mermaid/mermaid.esm.min.mjs';
+
+        // mermaid.initialize({
+        //     startOnLoad: false,
+        //     theme: 'neutral'
+        // });
+
+        const expressionInput = document.getElementById('expressionInput');
+        const evaluateButton = document.getElementById('evaluateButton');
+        const tokenStream = document.getElementById('tokenStream');
+        const astContainer = document.getElementById('astContainer');
+        const resultValue = document.getElementById('resultValue');
+
+        evaluateButton.addEventListener('click', evaluate);
+
+        expressionInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                evaluate();
+            }
+        });
+
+        async function evaluate() {
+            clearErrors();
+
+            const response = await fetch('/api/calculator', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    dslText: expressionInput.value
+                })
+            });
+
+            const model = await response.json();
+
+            renderTokens(model);
+            await renderAst(model);
+            renderResult(model);
+        }
+
+        function renderTokens(model) {
+            tokenStream.replaceChildren();
+
+            if (model.scannerError) {
+                renderError(tokenStream, model.scannerError);
+                return;
+            }
+
+            for (const token of model.tokens) {
+                const element = document.createElement('span');
+                element.className = 'token';
+                element.textContent = token.lexeme;
+
+                element.title =
+                    `Type: ${token.type}\n` +
+                    `Lexeme: ${token.lexeme}` +
+                    (token.value != null ? `\nValue: ${token.value}` : '') +
+                    (token.position != null ? `\nPosition: ${token.position}` : '');
+
+                tokenStream.appendChild(element);
+            }
+        }
+
+        async function renderAst(model) {
+            astContainer.replaceChildren();
+
+            if (model.parserError) {
+                renderError(astContainer, model.parserError);
+                return;
+            }
+
+            if (!model.astMermaid) {
+                return;
+            }
+
+            const diagram = document.createElement('div');
+            diagram.className = 'mermaid';
+            diagram.textContent = model.astMermaid;
+
+            astContainer.appendChild(diagram);
+
+            await mermaid.run({
+                nodes: [diagram]
+            });
+        }
+
+        function renderResult(model) {
+            if (model.runtimeError) {
+                resultValue.textContent = model.runtimeError;
+                resultValue.classList.add('result-error');
+                return;
+            }
+
+            resultValue.textContent = model.resultText ?? '—';
+        }
+
+        function renderError(container, message) {
+            const error = document.createElement('div');
+            error.className = 'demo-error';
+            error.textContent = message;
+
+            container.appendChild(error);
+        }
+
+        function clearErrors() {
+            resultValue.classList.remove('result-error');
+        }
+
+        // Initial render.
+        evaluate();
+    </script>
+}

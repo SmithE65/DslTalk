@@ -6,11 +6,19 @@ namespace DslTalk.Controllers;
 [Route("slides")]
 public class SlidesController : Controller
 {
-    private readonly SlideDefinition[] _deck =
-    [
-        new(1, "Title", "DSL Talk"),
-        new(2, "AboutMe", "About Me")
-    ];
+    private readonly SlideDefinition[] _deck;
+
+    public SlidesController()
+    {
+        var slides = new List<(string ViewName, string Title)>
+        {
+            ("Title", "DSL Talk"),
+            ("AboutMe", "About Me"),
+            ("CalculatorDemo", "Calculator Demo")
+        };
+
+        _deck = [.. slides.Select((s, i) => new SlideDefinition(i + 1, s.ViewName, s.Title))];
+    }
 
     [HttpGet("{pageNumber:int:min(1)}")]
     public IActionResult GetSlide(int pageNumber)
