@@ -62,6 +62,13 @@ public class Parser(IEnumerable<Token> tokens)
     /// <exception cref="Exception"></exception>
     private Expression ParsePrimary()
     {
+        if (Match(TokenType.Plus, TokenType.Minus))
+        {
+            Token operatorToken = Previous();
+            Expression right = ParsePrimary();
+            return new UnaryExpression(operatorToken, right);
+        }
+
         if (Match(TokenType.Literal))
         {
             return new LiteralExpression(Previous());
@@ -71,7 +78,7 @@ public class Parser(IEnumerable<Token> tokens)
         {
             Expression expression = ParseExpression();
             Consume(TokenType.RightParen, "Expect ')' after expression.");
-            return new GroupingExpression(expression);
+            return expression;
         }
 
         throw new ParseException("Expect expression.", Peek());

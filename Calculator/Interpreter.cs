@@ -13,6 +13,14 @@ public class Interpreter(Expression expression)
     {
         switch (expression)
         {
+            case UnaryExpression unary:
+                double operand = Evaluate(unary.Right);
+                return unary.Token.Type switch
+                {
+                    TokenType.Plus => operand,
+                    TokenType.Minus => -operand,
+                    _ => throw new Exception($"Unknown operator: {unary.Token.GetLexeme()}")
+                };
             case LiteralExpression literal:
                 return literal.Value;
             case BinaryExpression binary:

@@ -77,6 +77,11 @@ public class CalculatorController : ControllerBase
                 Label: null,
                 Properties: [],
                 Children: [ToAstNodeDto(grouping.Expression)]),
+            UnaryExpression unary => new AstNodeDto(
+                Kind: "UnaryExpression",
+                Label: unary.Token.GetLexeme(),
+                Properties: [],
+                Children: [ToAstNodeDto(unary.Right)]),
             _ => null
         };
     }

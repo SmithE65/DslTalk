@@ -10,6 +10,11 @@ public class InterpreterTests
     [InlineData("1 + 2 * 3", 7)]
     [InlineData("(1 + 2) * 3", 9)]
     [InlineData("3 + 4 * (2 - 1)", 7)]
+    [InlineData("-1", -1)]
+    [InlineData("+1", 1)]
+    [InlineData("2 + -3", -1)]
+    [InlineData("2 + +3", 5)]
+    [InlineData("-(2 + 3)", -5)]
     public void Interpret_ValidExpressions_ReturnsExpectedResults(string input, double expected)
     {
         var scanner = new Scanner(input);

@@ -65,10 +65,9 @@ public class ParserTests
         Assert.NotNull(expression);
         // The top-level expression should be a BinaryExpression for '*'
         var topLevelExpression = Assert.IsType<BinaryExpression>(expression);
-        var leftGrouping = Assert.IsType<GroupingExpression>(topLevelExpression.Left);
 
         // Inside the grouping, we should have a BinaryExpression for '+'
-        var innerExpression = Assert.IsType<BinaryExpression>(leftGrouping.Expression);
+        var innerExpression = Assert.IsType<BinaryExpression>(topLevelExpression.Left);
         var left = Assert.IsType<LiteralExpression>(innerExpression.Left);
         Assert.Equal(1, left.Value);
         var right = Assert.IsType<LiteralExpression>(innerExpression.Right);
@@ -99,14 +98,28 @@ public class ParserTests
         topLevelExpression = right;
         left = Assert.IsType<LiteralExpression>(topLevelExpression.Left);
         Assert.Equal(4, left.Value);
-        var group = Assert.IsType<GroupingExpression>(topLevelExpression.Right);
 
         // 2 - 1
-        topLevelExpression = Assert.IsType<BinaryExpression>(group.Expression);
+        topLevelExpression = Assert.IsType<BinaryExpression>(topLevelExpression.Right);
         left = Assert.IsType<LiteralExpression>(topLevelExpression.Left);
         Assert.Equal(2, left.Value);
         var rightLiteral = Assert.IsType<LiteralExpression>(topLevelExpression.Right);
         Assert.Equal(1, rightLiteral.Value);
+    }
+
+    [Fact]
+    public void ParsesUnaryExpression()
+    {
+        const string input = "-5";
+        var scanner = new Scanner(input);
+        var tokens = scanner.Scan();
+        var parser = new Parser(tokens);
+        var expression = parser.Parse();
+        Assert.NotNull(expression);
+        var unaryExpression = Assert.IsType<UnaryExpression>(expression);
+        Assert.Equal(TokenType.Minus, unaryExpression.Token.Type);
+        var literalExpression = Assert.IsType<LiteralExpression>(unaryExpression.Right);
+        Assert.Equal(5, literalExpression.Value);
     }
 
     [Fact]
