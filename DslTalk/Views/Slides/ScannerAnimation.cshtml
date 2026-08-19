@@ -1,0 +1,54 @@
+﻿@model SlideViewModel
+
+@{
+    ViewData["Title"] = "Scanner Animation";
+}
+
+<section class="demo-slide">
+    <header class="demo-header">
+        <div>
+            <h1>
+                How A Scanner Works
+            </h1>
+        </div>
+    </header>
+
+    <div class="expression-panel">
+        <span class="panel-label">Expression</span>
+
+        <input class="expression-input"
+            value="(1 + 2) * 3" />
+    </div>
+
+    <div id="source" class="scanner-source">
+        <span data-position="0" class="current-character">1</span>
+        <span data-position="1">2</span>
+        <span data-position="2"> </span>
+        <span data-position="3">+</span>
+        ...
+    </div>
+
+    <pre class="scanner-code">
+        <code>
+            <span>switch (c)</span>
+            <span>{</span>
+            <span data-case="Plus" class="case-active">    case '+':</span>
+            <span data-case="Minus">    case '-':</span>
+            <span data-case="Star">    case '*':</span>
+            <span data-case="Slash">    case '/':</span>
+            <span data-case="Whitespace">    case ' ':</span>
+            <span data-case="Number" class="case-match">    default: // number?</span>
+            <span>}</span>
+        </code>
+    </pre>
+
+    <div>
+        <div>
+
+        </div>
+
+        <div>
+
+        </div>
+    </div>
+</section>

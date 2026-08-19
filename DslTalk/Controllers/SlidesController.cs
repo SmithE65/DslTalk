@@ -14,6 +14,11 @@ public class SlidesController : Controller
         {
             ("Title", "DSL Talk"),
             ("AboutMe", "About Me"),
+            ("Agenda", "Agenda"),
+            ("DslDefinition", "DSL Definition"),
+            ("CalculatorLanguage", "Calculator Language"),
+            ("ScannerAnimation", "Scanner Animation"),
+            ("ParserAnimation", "Parser Animation"),
             ("CalculatorDemo", "Calculator Demo")
         };
 
