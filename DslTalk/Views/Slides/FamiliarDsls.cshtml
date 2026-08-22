@@ -1,0 +1,144 @@
+﻿@model SlideViewModel
+
+<section class="bullet-slide">
+    <h1>DSLs Are Everywhere</h1>
+
+    <div id="dslCarousel"
+         class="carousel slide dsl-carousel"
+         data-bs-theme="dark"
+         data-bs-interval="false"
+         data-bs-touch="false">
+
+        <div class="carousel-indicators">
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="0"
+                    class="active"
+                    aria-current="true"
+                    aria-label="SQL"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="1"
+                    aria-label="Regular Expressions"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="2"
+                    aria-label="Cron"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="3"
+                    aria-label="Mermaid"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="4"
+                    aria-label="Elasticsearch Query DSL"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="5"
+                    aria-label="Excel Formulas"></button>
+        </div>
+
+        <div class="carousel-inner">
+
+            <div class="carousel-item active">
+                <div class="dsl-example">
+                    <h2>SQL</h2>
+
+                    <pre><code class="language-sql">SELECT order_number, total
+FROM orders
+WHERE status = 'Open'
+  AND total &gt; 500
+ORDER BY total DESC;</code></pre>
+
+                    <p>Querying and manipulating relational data</p>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Regular Expressions</h2>
+
+                    <pre><code class="language-plaintext">^[A-Z]{3}\d{4}$</code></pre>
+
+                    <p>Describing patterns in text</p>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Cron</h2>
+
+                    <pre><code class="language-plaintext">0 8 * * 1-5</code></pre>
+
+                    <p>Describing schedules</p>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Mermaid</h2>
+
+                    <pre><code class="language-plaintext">flowchart LR
+    Source --> Scanner
+    Scanner --> Parser
+    Parser --> AST
+    AST --> Interpreter</code></pre>
+
+                    <p>Describing diagrams</p>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Elasticsearch Query DSL</h2>
+
+                    <pre><code class="language-json">{
+  "query": {
+    "range": {
+      "total": {
+        "gt": 500
+      }
+    }
+  }
+}</code></pre>
+
+                    <p>A query language encoded in JSON</p>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Excel Formulas</h2>
+
+                    <pre><code class="language-plaintext">
+                        =IF(A2 > 1000, A2 * 0.9, A2)
+                    </code></pre>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#dslCarousel"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"
+                  aria-hidden="true"></span>
+            <span class="visually-hidden">Previous example</span>
+        </button>
+
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#dslCarousel"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon"
+                  aria-hidden="true"></span>
+            <span class="visually-hidden">Next example</span>
+        </button>
+    </div>
+</section>

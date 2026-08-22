@@ -8,6 +8,7 @@
     <title>@Model.CurrentSlide.Title</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/highlightjs/styles/github-dark.min.css" />
     <link rel="stylesheet" href="~/css/slides.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Styles", required: false)
@@ -68,6 +69,9 @@
         </div>
     </nav>
 
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/highlightjs/highlight.min.js"></script>
+
     <script>
         document
             .getElementById("slide-jump")
@@ -91,6 +95,9 @@
             });
     </script>
 
+    <script>
+        hljs.highlightAll();
+    </script>
     
     @await RenderSectionAsync("Scripts", required: false)
 

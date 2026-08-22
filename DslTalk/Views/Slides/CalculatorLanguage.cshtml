@@ -1,10 +1,30 @@
 ﻿@model SlideViewModel
 
-@{
-    ViewData["Title"] = "Calculator Language";
-}
-
-<section class="text-slide">
+<section class="slide-prose">
     <h1>A Calculator Language</h1>
-    <h2>Tiny DSL</h2>
+    <h2>(1 + 2) * 3 / -4</h2>
+
+    <p>
+        "Math is a language; do what it says," is what my high school math teacher used to say.
+        If it's a language, it has grammar and vocabulary. What does that mean?
+    </p>
+
+    <p>
+        What are our words? Our parts of speech? Our punctuation?
+    </p>
+
+    <p>
+        Is <strong>4 + -3</strong> valid?<br />
+        What about <strong>4+-3</strong>? <strong>+4+-3</strong>?
+    </p>
+
+    <p>
+        And why are these different?
+    </p>
+
+    <p class="expression-examples">
+        (1 + 2) * 3<br />
+        1 + (2 * 3)<br />
+        1 + 2 * 3
+    </p>
 </section>

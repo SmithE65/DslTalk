@@ -1,54 +1,667 @@
 ﻿@model SlideViewModel
 
-@{
-    ViewData["Title"] = "Scanner Animation";
-}
-
-<section class="demo-slide">
-    <header class="demo-header">
-        <div>
-            <h1>
-                How A Scanner Works
-            </h1>
-        </div>
+<section class="scanner-animation-slide">
+    <header>
+        <h1>Scanning: Source → Tokens</h1>
+        <p class="slide-subtitle">
+            The scanner identifies the vocabulary of our language.
+        </p>
     </header>
 
-    <div class="expression-panel">
-        <span class="panel-label">Expression</span>
-
-        <input class="expression-input"
-            value="(1 + 2) * 3" />
+    <div class="scanner-source-panel">
+        <div class="scanner-panel-label">Source</div>
+        <div id="scannerSource" class="scanner-source"></div>
     </div>
 
-    <div id="source" class="scanner-source">
-        <span data-position="0" class="current-character">1</span>
-        <span data-position="1">2</span>
-        <span data-position="2"> </span>
-        <span data-position="3">+</span>
-        ...
+    <div class="scanner-animation-grid">
+        <section class="scanner-rules-panel">
+            <div class="scanner-panel-label">Scanner Rules</div>
+
+            <div class="scanner-rules">
+                <div data-rule="Plus">+</div>
+                <div data-rule="Minus">-</div>
+                <div data-rule="Star">*</div>
+                <div data-rule="Slash">/</div>
+                <div data-rule="LeftParen">(</div>
+                <div data-rule="RightParen">)</div>
+                <div data-rule="Number">IsDigit → ScanNumber</div>
+                <div data-rule="Whitespace">IsWhiteSpace</div>
+            </div>
+        </section>
+
+        <section class="scanner-token-panel">
+            <div class="scanner-panel-label">Token Stream</div>
+
+            <div id="scannerTokens" class="scanner-token-stream">
+                <span class="scanner-empty">No tokens yet</span>
+            </div>
+        </section>
     </div>
 
-    <pre class="scanner-code">
-        <code>
-            <span>switch (c)</span>
-            <span>{</span>
-            <span data-case="Plus" class="case-active">    case '+':</span>
-            <span data-case="Minus">    case '-':</span>
-            <span data-case="Star">    case '*':</span>
-            <span data-case="Slash">    case '/':</span>
-            <span data-case="Whitespace">    case ' ':</span>
-            <span data-case="Number" class="case-match">    default: // number?</span>
-            <span>}</span>
-        </code>
-    </pre>
+    <footer class="scanner-controls">
+        <div class="scanner-buttons">
+            <button id="scannerPlay"
+                    class="btn btn-primary"
+                    type="button">
+                Play
+            </button>
 
-    <div>
-        <div>
+            <button id="scannerStep"
+                    class="btn btn-outline-secondary"
+                    type="button">
+                Step
+            </button>
 
+            <button id="scannerReset"
+                    class="btn btn-outline-secondary"
+                    type="button">
+                Reset
+            </button>
         </div>
 
-        <div>
-
+        <div id="scannerStatus" class="scanner-status">
+            Ready
         </div>
-    </div>
+    </footer>
 </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const expression = "(12 + 2) * 3 / -4";
+
+            /*
+                This is the contract your real scanner can eventually produce.
+
+                Event types:
+                  select  - current source character
+                  test    - conceptually consider a scanner rule
+                  match   - rule matched
+                  span    - source extent belonging to current token
+                  emit    - append token
+                  advance - move scanner position
+                  pause   - intentional presentation pause
+                  eof     - scanning complete
+            */
+
+            const ruleOrder = [
+                "Plus",
+                "Minus",
+                "Star",
+                "Slash",
+                "LeftParen",
+                "RightParen",
+                "Whitespace",
+                "Number"
+            ];
+
+            function testsFor(rule) {
+                const end = ruleOrder.indexOf(rule);
+
+                return ruleOrder
+                    .slice(0, end + 1)
+                    .map(name => ({
+                        type: "test",
+                        rule: name,
+                        delay: 80
+                    }));
+            }
+
+            function singleCharacterToken(
+                position,
+                rule,
+                tokenType,
+                lexeme,
+                options = {}) {
+
+                return [
+                    {
+                        type: "select",
+                        position,
+                        delay: 350
+                    },
+
+                    ...testsFor(rule),
+
+                    {
+                        type: "match",
+                        rule,
+                        delay: 350
+                    },
+
+                    {
+                        type: "span",
+                        start: position,
+                        length: 1,
+                        delay: 400
+                    },
+
+                    {
+                        type: "emit",
+                        token: {
+                            type: tokenType,
+                            lexeme
+                        },
+                        delay: 450
+                    },
+
+                    ...(options.pause
+                        ? [{
+                            type: "pause",
+                            message: options.pause
+                        }]
+                        : []),
+
+                    {
+                        type: "advance",
+                        position: position + 1,
+                        delay: 250
+                    }
+                ];
+            }
+
+            function whitespace(position) {
+                return [
+                    {
+                        type: "select",
+                        position,
+                        delay: 250
+                    },
+
+                    ...testsFor("Whitespace"),
+
+                    {
+                        type: "match",
+                        rule: "Whitespace",
+                        delay: 250
+                    },
+
+                    {
+                        type: "advance",
+                        position: position + 1,
+                        delay: 200
+                    }
+                ];
+            }
+
+            function numberToken(
+                start,
+                length,
+                lexeme,
+                options = {}) {
+
+                const steps = [
+                    {
+                        type: "select",
+                        position: start,
+                        delay: 350
+                    },
+
+                    ...testsFor("Number"),
+
+                    {
+                        type: "match",
+                        rule: "Number",
+                        delay: 350
+                    }
+                ];
+
+                // Let the audience see the token extent grow.
+                for (let lengthSoFar = 1;
+                    lengthSoFar <= length;
+                    lengthSoFar++) {
+
+                    steps.push({
+                        type: "span",
+                        start,
+                        length: lengthSoFar,
+                        delay: 300
+                    });
+                }
+
+                steps.push({
+                    type: "emit",
+                    token: {
+                        type: "Number",
+                        lexeme,
+                        value: Number(lexeme)
+                    },
+                    delay: 450
+                });
+
+                if (options.pause) {
+                    steps.push({
+                        type: "pause",
+                        message: options.pause
+                    });
+                }
+
+                steps.push({
+                    type: "advance",
+                    position: start + length,
+                    delay: 250
+                });
+
+                return steps;
+            }
+
+            /*
+                Canned script for:
+
+                    (12 + 2) * 3 / -4
+            */
+            const steps = [
+                ...singleCharacterToken(
+                    0,
+                    "LeftParen",
+                    "LeftParen",
+                    "("),
+
+                ...numberToken(
+                    1,
+                    2,
+                    "12",
+                    {
+                        pause:
+                            "12 is one Number token, even though it contains two characters."
+                    }),
+
+                ...whitespace(3),
+
+                ...singleCharacterToken(
+                    4,
+                    "Plus",
+                    "Plus",
+                    "+"),
+
+                ...whitespace(5),
+
+                ...numberToken(
+                    6,
+                    1,
+                    "2"),
+
+                ...singleCharacterToken(
+                    7,
+                    "RightParen",
+                    "RightParen",
+                    ")"),
+
+                ...whitespace(8),
+
+                ...singleCharacterToken(
+                    9,
+                    "Star",
+                    "Star",
+                    "*"),
+
+                ...whitespace(10),
+
+                ...numberToken(
+                    11,
+                    1,
+                    "3"),
+
+                ...whitespace(12),
+
+                ...singleCharacterToken(
+                    13,
+                    "Slash",
+                    "Slash",
+                    "/"),
+
+                ...whitespace(14),
+
+                ...singleCharacterToken(
+                    15,
+                    "Minus",
+                    "Minus",
+                    "-",
+                    {
+                        pause:
+                            "The scanner only knows this is a Minus token. The parser will decide that it is unary."
+                    }),
+
+                ...numberToken(
+                    16,
+                    1,
+                    "4"),
+
+                {
+                    type: "eof",
+                    delay: 300
+                },
+                {
+                    type: "emit",
+                    token: {
+                        type: "Eof",
+                        lexeme: ""
+                    },
+                    delay: 450
+                }
+            ];
+
+            const sourceElement =
+                document.getElementById("scannerSource");
+
+            const tokensElement =
+                document.getElementById("scannerTokens");
+
+            const statusElement =
+                document.getElementById("scannerStatus");
+
+            const playButton =
+                document.getElementById("scannerPlay");
+
+            const stepButton =
+                document.getElementById("scannerStep");
+
+            const resetButton =
+                document.getElementById("scannerReset");
+
+            let index = 0;
+            let playing = false;
+            let generation = 0;
+
+            initialize();
+
+            playButton.addEventListener("click", () => {
+                if (playing) {
+                    pause();
+                }
+                else {
+                    play();
+                }
+            });
+
+            stepButton.addEventListener("click", async () => {
+                pause();
+
+                if (index < steps.length) {
+                    await executeNext(false);
+                }
+            });
+
+            resetButton.addEventListener("click", reset);
+
+            function initialize() {
+                renderSource();
+                reset();
+            }
+
+            function renderSource() {
+                sourceElement.replaceChildren();
+
+                [...expression].forEach((character, position) => {
+                    const span = document.createElement("span");
+
+                    span.className = "scanner-character";
+                    span.dataset.position = position;
+
+                    if (character === " ") {
+                        span.textContent = "\u00A0";
+                        span.title = "space";
+                    }
+                    else {
+                        span.textContent = character;
+                    }
+
+                    sourceElement.appendChild(span);
+                });
+
+                const eof = document.createElement("span");
+                eof.id = "scannerEof";
+                eof.className = "scanner-eof";
+                eof.textContent = "EOF";
+
+                sourceElement.appendChild(eof);
+            }
+
+            async function play() {
+                if (index >= steps.length) {
+                    reset();
+                }
+
+                playing = true;
+                playButton.textContent = "Pause";
+
+                const myGeneration = generation;
+
+                while (
+                    playing &&
+                    index < steps.length &&
+                    myGeneration === generation) {
+
+                    const shouldContinue =
+                        await executeNext(true);
+
+                    if (!shouldContinue)
+                        break;
+                }
+
+                if (myGeneration === generation) {
+                    playing = false;
+                    playButton.textContent =
+                        index >= steps.length ? "Replay" : "Resume";
+                }
+            }
+
+            function pause() {
+                playing = false;
+                playButton.textContent = "Resume";
+            }
+
+            async function executeNext(autoPlaying) {
+                const step = steps[index++];
+
+                switch (step.type) {
+                    case "select":
+                        selectCharacter(step.position);
+                        statusElement.textContent =
+                            `Read '${displayCharacter(step.position)}'`;
+                        break;
+
+                    case "test":
+                        testRule(step.rule);
+                        statusElement.textContent =
+                            `Does it match ${step.rule}?`;
+                        break;
+
+                    case "match":
+                        matchRule(step.rule);
+                        statusElement.textContent =
+                            `Matched ${step.rule}`;
+                        break;
+
+                    case "span":
+                        highlightTokenExtent(
+                            step.start,
+                            step.length);
+
+                        statusElement.textContent =
+                            "Determine the token extent";
+                        break;
+
+                    case "emit":
+                        appendToken(step.token);
+
+                        statusElement.textContent =
+                            `Emit ${step.token.type}`;
+                        break;
+
+                    case "advance":
+                        clearRuleHighlights();
+                        selectCharacter(step.position);
+
+                        statusElement.textContent =
+                            "Advance to the next character";
+                        break;
+
+                    case "pause":
+                        statusElement.textContent =
+                            step.message;
+
+                        if (autoPlaying) {
+                            playing = false;
+                            playButton.textContent = "Resume";
+                        }
+
+                        return false;
+
+                    case "eof":
+                        clearSourceHighlights();
+                        clearRuleHighlights();
+
+                        document
+                            .getElementById("scannerEof")
+                            .classList.add("active");
+
+                        statusElement.textContent =
+                            "End of input";
+
+                        break;
+                }
+
+                if (step.delay) {
+                    await delay(step.delay);
+                }
+
+                return true;
+            }
+
+            function reset() {
+                generation++;
+                playing = false;
+                index = 0;
+
+                clearRuleHighlights();
+                clearSourceHighlights();
+
+                tokensElement.replaceChildren();
+
+                const empty = document.createElement("span");
+                empty.className = "scanner-empty";
+                empty.textContent = "No tokens yet";
+                tokensElement.appendChild(empty);
+
+                document
+                    .getElementById("scannerEof")
+                    ?.classList.remove("active");
+
+                // Requirement: begin with the first character selected.
+                selectCharacter(0);
+
+                statusElement.textContent = "Ready";
+                playButton.textContent = "Play";
+            }
+
+            function selectCharacter(position) {
+                clearSourceHighlights();
+
+                const character =
+                    sourceElement.querySelector(
+                        `[data-position="${position}"]`);
+
+                character?.classList.add("current");
+            }
+
+            function highlightTokenExtent(start, length) {
+                clearSourceHighlights();
+
+                for (let position = start;
+                    position < start + length;
+                    position++) {
+
+                    sourceElement
+                        .querySelector(
+                            `[data-position="${position}"]`)
+                        ?.classList.add("token-extent");
+                }
+            }
+
+            function testRule(rule) {
+                clearRuleHighlights();
+
+                document
+                    .querySelector(`[data-rule="${rule}"]`)
+                    ?.classList.add("testing");
+            }
+
+            function matchRule(rule) {
+                clearRuleHighlights();
+
+                document
+                    .querySelector(`[data-rule="${rule}"]`)
+                    ?.classList.add("matched");
+            }
+
+            function clearRuleHighlights() {
+                document
+                    .querySelectorAll(".scanner-rules [data-rule]")
+                    .forEach(rule => {
+                        rule.classList.remove(
+                            "testing",
+                            "matched");
+                    });
+            }
+
+            function clearSourceHighlights() {
+                sourceElement
+                    .querySelectorAll(".scanner-character")
+                    .forEach(character => {
+                        character.classList.remove(
+                            "current",
+                            "token-extent");
+                    });
+            }
+
+            function appendToken(token) {
+                tokensElement
+                    .querySelector(".scanner-empty")
+                    ?.remove();
+
+                const element =
+                    document.createElement("div");
+
+                element.className = "scanner-token";
+
+                const lexeme =
+                    document.createElement("span");
+
+                lexeme.className = "scanner-token-lexeme";
+                lexeme.textContent =
+                    token.type === "Eof"
+                        ? "EOF"
+                        : token.lexeme;
+
+                const type =
+                    document.createElement("span");
+
+                type.className = "scanner-token-type";
+                type.textContent = token.type;
+
+                element.append(
+                    lexeme,
+                    type);
+
+                tokensElement.appendChild(element);
+            }
+
+            function displayCharacter(position) {
+                if (position >= expression.length)
+                    return "EOF";
+
+                const c = expression[position];
+
+                return c === " "
+                    ? "space"
+                    : c;
+            }
+
+            function delay(milliseconds) {
+                return new Promise(resolve =>
+                    setTimeout(resolve, milliseconds));
+            }
+        })();
+    </script>
+}
