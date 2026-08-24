@@ -131,8 +131,8 @@
         async function renderAst(model) {
             astContainer.replaceChildren();
 
-            if (model.parserError) {
-                renderError(astContainer, model.parserError);
+            if (model.diagnostic && model.diagnostic.phase === "Parsing") {
+                renderError(astContainer, model.diagnostic.message);
                 return;
             }
 

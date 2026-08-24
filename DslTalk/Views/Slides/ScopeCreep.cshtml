@@ -1,0 +1,144 @@
+﻿@model SlideViewModel
+
+<section class="slide-section">
+    <header>
+        <h1>Language Changes Have Two Costs</h1>
+        <p class="slide-subtitle">
+            Implementation complexity and compatibility risk are not the same thing.
+        </p>
+    </header>
+
+    <div class="row g-4 flex-grow-1 mt-3">
+
+        <div class="col-7">
+            <div class="demo-panel h-100 p-4">
+                <div class="demo-panel-label">Seemingly Small Changes</div>
+
+                <table class="table align-middle fs-5 mb-0">
+                    <thead>
+                        <tr>
+                            <th>Change</th>
+                            <th>What Can Break?</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>
+                                Add a keyword
+                                <code>when</code>
+                            </td>
+                            <td>
+                                Existing identifiers named
+                                <code>when</code>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Add an operator
+                            </td>
+                            <td>
+                                Tokenization, ambiguity, precedence
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Change precedence
+                            </td>
+                            <td>
+                                Old code still parses —
+                                <strong>but means something different</strong>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Add coercion or overloads
+                            </td>
+                            <td>
+                                Existing expressions may resolve differently
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Change nulls or defaults
+                            </td>
+                            <td>
+                                Same program, different result
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Add stronger type rules
+                            </td>
+                            <td>
+                                Previously valid programs may become invalid
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-5 d-flex flex-column gap-4">
+
+            <div class="demo-panel p-4 flex-fill">
+                <div class="demo-panel-label">Implementation Cost</div>
+
+                <p class="fs-4 mb-2">
+                    What has to change?
+                </p>
+
+                <ul class="fs-5 mb-0">
+                    <li>Scanner / parser</li>
+                    <li>AST / semantic model</li>
+                    <li>Evaluator</li>
+                    <li>Diagnostics and tooling</li>
+                    <li>Tests</li>
+                </ul>
+            </div>
+
+            <div class="demo-panel p-4 flex-fill">
+                <div class="demo-panel-label">Compatibility Cost</div>
+
+                <p class="fs-4 mb-2">
+                    What already exists?
+                </p>
+
+                <ul class="fs-5 mb-0">
+                    <li>Saved programs</li>
+                    <li>Generated programs</li>
+                    <li>External producers</li>
+                    <li>User expectations</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-4 p-3 rounded bg-body-tertiary">
+        <div class="row align-items-center text-center">
+            <div class="col">
+                <strong class="fs-4">Ad hoc language?</strong>
+                <div class="fs-5 opacity-75">
+                    Change it. Fix the implementation.
+                </div>
+            </div>
+
+            <div class="col-auto fs-2 opacity-50">
+                →
+            </div>
+
+            <div class="col">
+                <strong class="fs-4">Persisted language?</strong>
+                <div class="fs-5 opacity-75">
+                    Version, migrate, deprecate, or stay compatible.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

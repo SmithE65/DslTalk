@@ -23,18 +23,25 @@ public class SlidesController : Controller
             ("SectionInterpreter", "Anatomy of an Interpreter"), // Title slide
             ("ScanParseInterpret", "Parts of an Interpreter"),
             ("CalculatorLanguage", "Calculator Language"),
-            ("BNF", "BNF"),
+            ("BNF", "EBNF"),
             ("ScannerAnimation", "Scanner Animation"),
             ("ParserAnimation", "Parser Animation"),
+            ("Diagnostics", "Diagnostics"),
             ("CalculatorDemo", "Calculator Demo"),
-            ("SectionAccidentalDsls", "You May Already Have a Language"), // Title slide
+            ("SectionAccidentalDsls", "Languages Hiding in Plain Sight"), // Title slide
             ("FamiliarDslsRevisited", "Familiar DSLs Revisited"),
             ("AccidentalDsl", "Accidental DSL"),
             ("DontReinventTheWheel", "Don't Reinvent the Wheel"),
-            ("DontReinventTheWheel2", "Don't Reinvent the Wheel"),
+            ("DontReinventTheWheel2", "We Like Reinventing"),
             ("SectionCreatingADsl", "Creating A DSL"), // Title slide
             ("WhereToStart", "Where To Start"),
-            ("Summary", "Summary")
+            ("KnowYourUsers", "Know Your Users"),
+            ("Grammar", "Make Grammar Boring"),
+            ("Types", "Types Exist"),
+            ("SchemaShiftTypes", "Schema Shift Types"),
+            ("ScopeCreep", "Language Evolution"),
+            ("Summary", "Summary"),
+            ("SearchDemo", "Search Demo")
         };
 
         _deck = [.. slides.Select((s, i) => new SlideDefinition(i + 1, s.ViewName, s.Title))];

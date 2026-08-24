@@ -1,12 +1,75 @@
 ﻿@model SlideViewModel
 
-<section class="slide-center">
-    <h1>Where to Start</h1>
-    <ul>
-        <li>Start with a small, focused problem</li>
-        <li>Identify the domain concepts and vocabulary</li>
-        <li>Design the syntax and semantics of your DSL</li>
-        <li>Implement the DSL using appropriate tools and frameworks</li>
-        <li>Iterate and refine based on feedback and usage</li>
-    </ul>
+<section class="bullet-slide">
+    <h1>Where Do You Start?</h1>
+
+    <div class="row row-cols-2 g-4 flex-grow-1">
+
+        <div class="col d-flex">
+            <div class="border-start border-4 ps-4 pe-3 py-2">
+                <h2>Start With the Domain</h2>
+
+                <p>
+                    What are users actually trying to express?
+                </p>
+
+                <p class="slide-subtitle">
+                    Let the problem shape the language — not clever syntax.
+                </p>
+            </div>
+        </div>
+
+        <div class="col d-flex">
+            <div class="border-start border-4 ps-4 pe-3 py-2">
+                <h2>Look Before You Build</h2>
+
+                <p>
+                    If an existing language fits the domain, use it.
+                </p>
+
+                <p class="slide-subtitle">
+                    Adopt → bind or extend → invent.
+                </p>
+            </div>
+        </div>
+
+        <div class="col d-flex">
+            <div class="border-start border-4 ps-4 pe-3 py-2">
+                <h2>Borrow Aggressively</h2>
+
+                <p>
+                    Use representations and syntax your users already understand.
+                </p>
+
+                <p class="slide-subtitle">
+                    Familiarity helps adoption — and somebody else already solved
+                    problems you're about to discover.
+                </p>
+            </div>
+        </div>
+
+        <div class="col d-flex">
+            <div class="border-start border-4 ps-4 pe-3 py-2">
+                <h2>Prototype the Language First</h2>
+
+                <p>
+                    Write examples. Try edge cases. Change your mind.
+                </p>
+
+                <p class="slide-subtitle">
+                    You don't need a scanner, parser, or interpreter to decide
+                    whether a language feels right.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-4 p-3 rounded text-center bg-body-tertiary">
+        <span class="fs-3">
+            Match the <strong>representation</strong>,
+            <strong>syntax</strong>, and
+            <strong>capability</strong> to the domain.
+        </span>
+    </div>
 </section>

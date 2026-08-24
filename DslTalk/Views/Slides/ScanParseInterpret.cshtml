@@ -1,21 +1,62 @@
 ﻿@model SlideViewModel
 
-<section>
-    <h1>Building an Interpreter</h1>
-    <pre class="mermaid">
-        flowchart LR
-        scan["Scan"]-->parse["Parse"]
-        parse-->interpret["Interpret"]
-    </pre>
+<section class="slide-section">
+    <header>
+        <h1>Building an Interpreter</h1>
+        <p class="slide-subtitle">
+            Text becomes structure. Structure can be evaluated.
+        </p>
+    </header>
 
-    <p>Scanning - the process of converting plain text into a token stream</p>
-    <p>Parsing - consuming the token stream and building an AST</p>
-    <p>AST - the Abstract Syntax Tree is an in-memory representation of your grammar</p>
-    <p>Interpreter - consumes the AST</p>
+    <div class="demo-panel p-4 my-4">
+        <div class="demo-panel-label">The Pipeline</div>
+
+        <pre class="mermaid mb-0">
+flowchart LR
+    source["Source Text"]
+    tokens["Token Stream"]
+    ast["AST"]
+    result["Result"]
+
+    source -->|"Scan"| tokens
+    tokens -->|"Parse"| ast
+    ast -->|"Interpret"| result
+        </pre>
+    </div>
+
+    <div class="row row-cols-3 g-4 flex-grow-1 align-items-stretch">
+        <div class="col">
+            <div class="h-100 border-start border-4 ps-3 py-2">
+                <h2 class="fs-3">Scanning</h2>
+                <p class="fs-4 mb-0">
+                    Convert <strong>source text</strong> into a stream of
+                    <strong>tokens</strong>.
+                </p>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="h-100 border-start border-4 ps-3 py-2">
+                <h2 class="fs-3">Parsing</h2>
+                <p class="fs-4 mb-0">
+                    Consume the <strong>token stream</strong> and build a
+                    structured representation — usually an <strong>AST</strong>.
+                </p>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="h-100 border-start border-4 ps-3 py-2">
+                <h2 class="fs-3">Interpreting</h2>
+                <p class="fs-4 mb-0">
+                    Evaluate the <strong>AST</strong> to produce the language's
+                    <strong>result or behavior</strong>.
+                </p>
+            </div>
+        </div>
+    </div>
 </section>
 
 @section Scripts {
-    <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.16.1/+esm'
-    </script>
+    <script type="module"> import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.16.1/+esm' </script>
 }

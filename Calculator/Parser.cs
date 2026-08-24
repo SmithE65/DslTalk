@@ -90,7 +90,7 @@ public class Parser(IEnumerable<Token> tokens)
             return expression;
         }
 
-        throw new ParseException("Expect expression.", Peek());
+        throw new ParseException($"Expect expression at {Peek().Start}.", Peek());
     }
 
     /// <summary>

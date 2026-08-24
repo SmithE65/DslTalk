@@ -42,6 +42,14 @@ public class CalculatorController : ControllerBase
 
             resultDto = resultDto with { Diagnostic = diag };
         }
+        catch (ParseException parseEx)
+        {
+            var diag = new DiagnosticDto(
+                Phase: "Parsing",
+                Message: parseEx.Message);
+
+            resultDto = resultDto with { Diagnostic = diag };
+        }
 
         resultDto = resultDto with
         {

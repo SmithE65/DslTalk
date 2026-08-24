@@ -1,0 +1,73 @@
+﻿@model SlideViewModel
+
+<section class="slide-section">
+    <header>
+        <h1>Diagnostics Are Part of the Language</h1>
+        <p class="slide-subtitle">
+            Invalid input is still part of the user experience.
+        </p>
+    </header>
+
+    <div class="row row-cols-3 g-4 flex-grow-1 align-items-stretch mt-3">
+
+        <div class="col">
+            <div class="demo-panel h-100 p-4">
+                <div class="demo-panel-label">Scanning</div>
+
+                <pre class="mb-4 fs-4"><code class="nohighlight">1 + @@ 2
+    ^</code></pre>
+
+                <p class="fs-4">
+                    Unexpected character <code>@@</code>.
+                </p>
+
+                <p class="slide-subtitle">
+                    Point back to the source that could not become a token.
+                </p>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="demo-panel h-100 p-4">
+                <div class="demo-panel-label">Parsing</div>
+
+                <pre class="mb-4 fs-4"><code class="nohighlight">1 + * 2
+    ^</code></pre>
+
+                <p class="fs-4">
+                    Expected an expression after <code>+</code>.
+                </p>
+
+                <p class="slide-subtitle">
+                    The tokens are valid. Their structure isn't.
+                </p>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="demo-panel h-100 p-4">
+                <div class="demo-panel-label">Evaluation</div>
+
+                <pre class="mb-4 fs-4"><code class="nohighlight">1 / 0
+  ^</code></pre>
+
+                <p class="fs-4">
+                    Cannot divide by zero.
+                </p>
+
+                <p class="slide-subtitle">
+                    The program is valid. The operation cannot be evaluated.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-4 p-3 rounded text-center bg-body-tertiary">
+        <span class="fs-3">
+            Keep the <strong>source location</strong>, the
+            <strong>phase</strong>, and the
+            <strong>user</strong> in mind.
+        </span>
+    </div>
+</section>

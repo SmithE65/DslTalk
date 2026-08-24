@@ -1,0 +1,55 @@
+﻿@model SlideViewModel
+
+<section class="bullet-slide">
+    <h1>SchemaShift: Types in Practice</h1>
+
+    <div class="row g-4 flex-grow-1">
+
+        <div class="col-7 d-flex flex-column gap-4">
+            <div class="border rounded p-4 flex-fill">
+                <div class="demo-panel-label">Passthrough Mapping</div>
+
+                <pre class="slide-code mb-3"><code class="language-plaintext">total = $.total</code></pre>
+
+                <p class="fs-4 mb-0">
+                    Don't interpret the value if we don't have to.
+                </p>
+            </div>
+
+            <div class="border rounded p-4 flex-fill">
+                <div class="demo-panel-label">Expression</div>
+
+                <pre class="slide-code mb-3"><code class="language-plaintext">decimal total = $.subtotal + $.tax</code></pre>
+
+                <p class="fs-4 mb-0">
+                    Now the expression needs numeric semantics.
+                    The declared result type gives us context.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-5">
+            <div class="border rounded p-4 h-100 d-flex flex-column">
+                <div class="demo-panel-label">How Should len() Work?</div>
+
+                <div class="my-auto">
+                    <pre class="slide-code mb-4"><code class="language-plaintext">len(array)   → int
+
+len(string)  → int
+
+len(number)  → ???</code></pre>
+
+                    <p class="fs-4 mb-3">
+                        Is convenience worth another semantic rule?
+                    </p>
+
+                    <p class="fs-4 mb-0">
+                        Or should the language simply say:
+                        <strong>that operation makes no sense here?</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

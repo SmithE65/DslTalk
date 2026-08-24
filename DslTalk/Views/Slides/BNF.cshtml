@@ -1,13 +1,60 @@
 ﻿@model SlideViewModel
 
-<section class="slide-prose">
-    <h1>Backus-Naur Form and Precedence</h1>
+<section class="slide-section">
+    <header>
+        <h1>The Grammar Defines Precedence</h1>
+        <p class="slide-subtitle">
+            A compact description of what expressions are valid — and how they are structured.
+        </p>
+    </header>
 
-    <pre><code>
-        expression  → term
-        term        → factor ( ("+" | "-") factor )*
-        factor      → unary ( ("*" | "/") unary )*
-        unary       → ("+" | "-") unary | primary
-        primary     → LITERAL | "(" expression ")"
-    </code></pre>
+    <div class="row g-5 flex-grow-1 align-items-center">
+        <div class="col-7">
+            <div class="demo-panel p-4">
+                <div class="demo-panel-label">EBNF</div>
+
+                <pre class="mb-0 fs-4"><code class="nohighlight">expression  → term
+
+term        → factor ( ("+" | "-") factor )*
+
+factor      → unary ( ("*" | "/") unary )*
+
+unary       → ("+" | "-") unary
+            | primary
+
+primary     → LITERAL
+            | "(" expression ")"</code></pre>
+            </div>
+        </div>
+
+        <div class="col-5">
+            <div class="d-flex flex-column gap-4">
+
+                <div class="border-start border-4 ps-4 py-2">
+                    <h2 class="fs-3">Precedence</h2>
+                    <p class="fs-4 mb-0">
+                        Each rule delegates its operands to a
+                        <strong>higher-precedence</strong> rule.
+                    </p>
+                </div>
+
+                <div class="border-start border-4 ps-4 py-2">
+                    <h2 class="fs-3">Associativity</h2>
+                    <p class="fs-4 mb-0">
+                        The repeated operator rules naturally build
+                        <strong>left-associative</strong> expressions.
+                    </p>
+                </div>
+
+                <div class="border-start border-4 ps-4 py-2">
+                    <h2 class="fs-3">Grouping</h2>
+                    <p class="fs-4 mb-0">
+                        Parentheses send us back to
+                        <strong>expression</strong>.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </section>

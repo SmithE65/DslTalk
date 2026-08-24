@@ -1,60 +1,59 @@
 ﻿@model SlideViewModel
 
 <section class="bullet-slide">
-    <h1>What Is a DSL?</h1>
+    <h1>Types Exist Whether You Acknowledge Them or Not</h1>
 
     <div class="row g-5 flex-grow-1 align-items-center">
-
         <div class="col-6">
-            <h2>A Language</h2>
-
             <ul class="slide-bullets">
                 <li>
-                    Has a <strong>vocabulary</strong>.
+                    What is a <strong>number</strong>?
                 </li>
 
                 <li>
-                    Has rules for <strong>structure and composition</strong>.
+                    What is <code>null</code>?
                 </li>
 
                 <li>
-                    Gives valid constructs defined <strong>meaning</strong>.
+                    Can values be <strong>coerced</strong>?
                 </li>
 
                 <li>
-                    Defines what is — and is not — valid.
+                    What does <code>+</code> mean?
+                </li>
+
+                <li>
+                    What can functions <strong>accept and return</strong>?
                 </li>
             </ul>
         </div>
 
         <div class="col-6">
-            <h2>Domain-Specific</h2>
-
             <ul class="slide-bullets">
                 <li>
-                    Focuses on a <strong>particular problem space</strong>.
+                    When do <strong>type errors</strong> happen?
                 </li>
 
                 <li>
-                    Uses the vocabulary of that domain.
+                    Can types change?
                 </li>
 
                 <li>
-                    Optimizes for the domain's common tasks.
+                    Do your types exist in the
+                    <strong>implementing language or runtime</strong>?
                 </li>
 
                 <li>
-                    Usually ignores everything outside that domain.
+                    Do your users need to know?
                 </li>
             </ul>
         </div>
-
     </div>
 
     <div class="mt-4 p-3 rounded text-center bg-body-tertiary">
         <span class="fs-3">
-            A DSL is a language designed to
-            <strong>express a particular kind of problem well.</strong>
+            Ignoring the type system does not mean you don't have one.
+            <strong>It means it's implicit.</strong>
         </span>
     </div>
 </section>

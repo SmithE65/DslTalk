@@ -1,4 +1,29 @@
+using DslTalk.Models;
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.ModelBuilder;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var edmBuilder =
+    new ODataConventionModelBuilder();
+
+edmBuilder
+    .EntityType<Order>()
+    .HasKey(x => x.OrderNumber);
+
+edmBuilder.EntitySet<Order>("Orders");
+
+builder.Services
+    .AddControllersWithViews()
+    .AddOData(options =>
+    {
+        options
+            .Filter()
+            .SetMaxTop(100)
+            .AddRouteComponents(
+                "odata",
+                edmBuilder.GetEdmModel());
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

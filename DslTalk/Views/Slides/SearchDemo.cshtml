@@ -1,0 +1,525 @@
+﻿@model SlideViewModel
+
+<section class="slide-section">
+    <header>
+        <h1>Search Without Exposing OData</h1>
+        <p class="slide-subtitle">
+            A tiny user-facing language translated into an existing query language.
+        </p>
+    </header>
+
+    <div class="row g-4 mt-3">
+
+        <!-- Search -->
+        <div class="col-6">
+            <div class="demo-panel p-4 h-100">
+                <div class="demo-panel-label">Search</div>
+
+                <form id="orderSearchForm">
+                    <div class="input-group input-group-lg">
+                        <input id="orderSearch"
+                               class="form-control font-monospace"
+                               value="status:Open total:>500 -country:US"
+                               autocomplete="off" />
+
+                        <button class="btn btn-primary"
+                                type="submit">
+                            Search
+                        </button>
+                    </div>
+                </form>
+
+                <div class="slide-subtitle mt-3">
+                    <code>field:value</code>
+                    &nbsp;·&nbsp;
+                    <code>total:&gt;500</code>
+                    &nbsp;·&nbsp;
+                    <code>-country:US</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- OData -->
+        <div class="col-6">
+            <div class="demo-panel p-4 h-100">
+                <div class="demo-panel-label">Generated OData</div>
+
+                <pre class="mb-0"><code id="searchOData"
+                                            class="language-plaintext">$filter=Status eq 'Open'
+  and Total gt 500
+  and not (ShippingCountry eq 'US')</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Results -->
+    <div class="demo-panel p-4 mt-4 flex-grow-1 overflow-hidden">
+        <div class="demo-panel-label">Results</div>
+
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Status</th>
+                    <th>Region</th>
+                    <th class="text-end">Total</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+
+            <tbody id="searchResults">
+                <tr>
+                    <td colspan="5"
+                        class="text-center opacity-50 py-4">
+                        Run a search
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="searchError"
+         class="alert alert-danger mt-3 mb-0 d-none">
+    </div>
+</section>
+
+@section Scripts {
+    <script type="module">
+        const form =
+            document.getElementById("orderSearchForm");
+
+        const input =
+            document.getElementById("orderSearch");
+
+        const odataOutput =
+            document.getElementById("searchOData");
+
+        const results =
+            document.getElementById("searchResults");
+
+        const errorOutput =
+            document.getElementById("searchError");
+
+
+        form.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            errorOutput.classList.add("d-none");
+
+            try {
+                const result =
+                    await searchOrders(input.value);
+
+                odataOutput.textContent =
+                    `$filter=${result.filter}`;
+
+                renderOrders(result.orders);
+            }
+            catch (error) {
+                errorOutput.textContent =
+                    error.message;
+
+                errorOutput.classList.remove("d-none");
+            }
+        });
+
+
+        function renderOrders(orders) {
+            results.replaceChildren();
+
+            if (orders.length === 0) {
+                const row =
+                    document.createElement("tr");
+
+                const cell =
+                    document.createElement("td");
+
+                cell.colSpan = 5;
+                cell.className =
+                    "text-center opacity-50 py-4";
+
+                cell.textContent =
+                    "No matching orders";
+
+                row.appendChild(cell);
+                results.appendChild(row);
+
+                return;
+            }
+
+            for (const order of orders) {
+                const row =
+                    document.createElement("tr");
+
+                row.append(
+                    createCell(order.OrderNumber ?? order.orderNumber),
+                    createCell(order.Status ?? order.status),
+                    createCell(order.Region ?? order.region),
+                    createCell(
+                        formatCurrency(order.Total ?? order.total),
+                        "text-end"),
+                    createCell(
+                        order.ShippingCountry ??
+                        order.shippingCountry)
+                );
+
+                results.appendChild(row);
+            }
+        }
+
+
+        function createCell(value, className = "") {
+            const cell =
+                document.createElement("td");
+
+            cell.textContent = value ?? "";
+            cell.className = className;
+
+            return cell;
+        }
+
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat(
+                "en-US",
+                {
+                    style: "currency",
+                    currency: "USD"
+                })
+                .format(value);
+        }
+
+
+        function escapeHtml(value) {
+            const div =
+                document.createElement("div");
+
+            div.textContent = value ?? "";
+
+            return div.innerHTML;
+        }
+
+                const searchFields = {
+            status: {
+                property: "Status",
+                type: "string"
+            },
+
+            region: {
+                property: "Region",
+                type: "string"
+            },
+
+            total: {
+                property: "Total",
+                type: "number"
+            },
+
+            country: {
+                property: "ShippingCountry",
+                type: "string"
+            },
+
+            state: {
+                property: "ShippingState",
+                type: "string"
+            },
+
+            order: {
+                property: "OrderNumber",
+                type: "number"
+            },
+
+            approved: {
+                property: "HasManagerApproval",
+                type: "boolean"
+            }
+        };
+
+        const odataOperators = {
+            "=": "eq",
+            ">": "gt",
+            ">=": "ge",
+            "<": "lt",
+            "<=": "le"
+        };
+
+
+        /* =========================================================
+           Parsing
+           ========================================================= */
+
+        function parseSearch(text) {
+            const sourceTerms = splitSearchTerms(text);
+
+            return {
+                type: "And",
+                terms: sourceTerms.map(parseSearchTerm)
+            };
+        }
+
+
+        function splitSearchTerms(text) {
+            const terms = [];
+
+            let current = "";
+            let quote = null;
+            let escaping = false;
+
+            for (const char of text.trim()) {
+                if (escaping) {
+                    current += char;
+                    escaping = false;
+                    continue;
+                }
+
+                if (char === "\\") {
+                    current += char;
+                    escaping = true;
+                    continue;
+                }
+
+                if (quote !== null) {
+                    current += char;
+
+                    if (char === quote)
+                        quote = null;
+
+                    continue;
+                }
+
+                if (char === '"' || char === "'") {
+                    quote = char;
+                    current += char;
+                    continue;
+                }
+
+                if (/\s/.test(char)) {
+                    if (current.length > 0) {
+                        terms.push(current);
+                        current = "";
+                    }
+
+                    continue;
+                }
+
+                current += char;
+            }
+
+            if (quote !== null)
+                throw new Error("Unterminated quoted value.");
+
+            if (current.length > 0)
+                terms.push(current);
+
+            return terms;
+        }
+
+
+        function parseSearchTerm(text) {
+            /*
+                Examples:
+
+                status:Open
+                total:>500
+                -country:US
+                region:"North East"
+            */
+
+            const match =
+                /^(-)?([A-Za-z][A-Za-z0-9_-]*):(>=|<=|>|<|=)?(.+)$/
+                    .exec(text);
+
+            if (!match)
+                throw new Error(`Invalid search term: ${text}`);
+
+            const [, negateMarker, fieldName, operatorText, rawValue] =
+                match;
+
+            const fieldKey = fieldName.toLowerCase();
+            const field = searchFields[fieldKey];
+
+            if (!field)
+                throw new Error(`Unknown search field: ${fieldName}`);
+
+            const operator = operatorText ?? "=";
+            const value = parseValue(rawValue, field.type);
+
+            validateOperator(fieldKey, field.type, operator);
+
+            return {
+                type: "Predicate",
+                field: fieldKey,
+                property: field.property,
+                operator,
+                value,
+                valueType: field.type,
+                negated: negateMarker === "-"
+            };
+        }
+
+
+        function parseValue(rawValue, type) {
+            const text = unquote(rawValue);
+
+            switch (type) {
+                case "string":
+                    return text;
+
+                case "number": {
+                    const value = Number(text);
+
+                    if (!Number.isFinite(value))
+                        throw new Error(`Expected a number, got: ${rawValue}`);
+
+                    return value;
+                }
+
+                case "boolean":
+                    if (text.toLowerCase() === "true")
+                        return true;
+
+                    if (text.toLowerCase() === "false")
+                        return false;
+
+                    throw new Error(`Expected true or false, got: ${rawValue}`);
+
+                default:
+                    throw new Error(`Unsupported field type: ${type}`);
+            }
+        }
+
+
+        function unquote(text) {
+            if (text.length < 2)
+                return text;
+
+            const first = text[0];
+            const last = text[text.length - 1];
+
+            if (
+                (first === '"' && last === '"') ||
+                (first === "'" && last === "'")
+            ) {
+                return text
+                    .slice(1, -1)
+                    .replaceAll(`\\${first}`, first)
+                    .replaceAll("\\\\", "\\");
+            }
+
+            return text;
+        }
+
+
+        function validateOperator(field, type, operator) {
+            if (type === "string" && operator !== "=") {
+                throw new Error(
+                    `${field} only supports equality searches.`);
+            }
+
+            if (type === "boolean" && operator !== "=") {
+                throw new Error(
+                    `${field} only supports equality searches.`);
+            }
+        }
+
+
+        /* =========================================================
+           OData translation
+           ========================================================= */
+
+        function toODataFilter(ast) {
+            if (ast.type !== "And")
+                throw new Error(`Unsupported AST node: ${ast.type}`);
+
+            return ast.terms
+                .map(predicateToOData)
+                .join(" and ");
+        }
+
+
+        function predicateToOData(predicate) {
+            const operator =
+                odataOperators[predicate.operator];
+
+            if (!operator)
+                throw new Error(
+                    `Unsupported operator: ${predicate.operator}`);
+
+            const literal =
+                toODataLiteral(
+                    predicate.value,
+                    predicate.valueType);
+
+            let expression =
+                `${predicate.property} ${operator} ${literal}`;
+
+            if (predicate.negated)
+                expression = `not (${expression})`;
+
+            return expression;
+        }
+
+
+        function toODataLiteral(value, type) {
+            switch (type) {
+                case "string":
+                    return `'${escapeODataString(value)}'`;
+
+                case "number":
+                    return String(value);
+
+                case "boolean":
+                    return value ? "true" : "false";
+
+                default:
+                    throw new Error(`Unsupported value type: ${type}`);
+            }
+        }
+
+
+        function escapeODataString(value) {
+            // OData string literals escape apostrophes by doubling them.
+            return value.replaceAll("'", "''");
+        }
+
+
+        /* =========================================================
+           Execute
+           ========================================================= */
+
+        async function searchOrders(searchText) {
+            const ast = parseSearch(searchText);
+            const filter = toODataFilter(ast);
+
+            const url =
+                new URL("/odata/Orders", window.location.origin);
+
+            if (filter)
+                url.searchParams.set("$filter", filter);
+
+            const response = await fetch(url, {
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                const body = await response.text();
+
+                throw new Error(
+                    `OData request failed: ${response.status}\n${body}`);
+            }
+
+            const body = await response.json();
+
+            return {
+                ast,
+                filter,
+                url: `${url.pathname}${url.search}`,
+                orders: body.value ?? body
+            };
+        }
+    </script>
+}
