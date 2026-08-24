@@ -1,0 +1,198 @@
+﻿@model SlideViewModel
+
+@{
+    var linqQuerySyntax = """
+    var openOrders =
+        from order in orders
+        where order.Status == "Open"
+           && order.Total > 500
+        orderby order.Total descending
+        select order;
+    """;
+
+    var linqMethodSyntax = """
+    var openOrders = orders
+        .Where(order =>
+            order.Status == "Open"
+            && order.Total > 500)
+        .OrderByDescending(order => order.Total);
+    """;
+
+    var razorSample = """
+    @if (Model.Orders.Any())
+    {
+        <ul>
+        @foreach (var order in Model.Orders)
+        {
+            <li>
+                @order.OrderNumber — @order.Total.ToString("C")
+            </li>
+        }
+        </ul>
+    }
+    """;
+
+    var routeSample = """
+    [HttpGet("orders/{id:int}")]
+
+    [HttpGet(
+        "reports/{year:int:min(2000)}/{month:int:range(1,12)}"
+    )]
+    """;
+
+    var loggingSample = """
+    logger.LogInformation(
+        "Order {OrderId} completed in {ElapsedMs} ms",
+        order.Id,
+        elapsed);
+    """;
+}
+
+<section class="bullet-slide">
+    <h1>These Are DSLs Too</h1>
+
+    <div id="dslCarousel"
+         class="carousel slide dsl-carousel"
+         data-bs-theme="dark"
+         data-bs-interval="false"
+         data-bs-touch="false">
+
+        <div class="carousel-indicators">
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="0"
+                    class="active"
+                    aria-current="true"
+                    aria-label="LINQ"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="1"
+                    aria-label="HTTP query strings"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="2"
+                    aria-label="Razor"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="3"
+                    aria-label="Route templates"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="4"
+                    aria-label="Logging templates"></button>
+        </div>
+
+        <div class="carousel-inner">
+
+            <!-- LINQ -->
+            <div class="carousel-item active">
+                <div class="dsl-example">
+                    <h2>LINQ — One DSL, Two Syntaxes</h2>
+
+                    <div class="dsl-example-pair">
+                        <div>
+                            <h3>Query Syntax</h3>
+                            <pre><code class="language-csharp">@linqQuerySyntax</code></pre>
+                        </div>
+
+                        <div>
+                            <h3>Method Syntax</h3>
+                            <pre><code class="language-csharp">@linqMethodSyntax</code></pre>
+                        </div>
+                    </div>
+
+                    <p>
+                        Different surface syntax. The same query model and semantics.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Query strings -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>HTTP Query Strings Can Host Languages</h2>
+
+                    <div class="dsl-query-examples">
+                        <div>
+                            <h3>OData</h3>
+                            <pre><code class="language-plaintext">GET /orders?$filter=status eq 'Open' and total gt 500
+            &$orderby=total desc</code></pre>
+                        </div>
+
+                        <div>
+                            <h3>SCIM</h3>
+                            <pre><code class="language-plaintext">GET /Users?filter=userType eq "Employee" and active eq true
+          &sortBy=userName</code></pre>
+                        </div>
+                    </div>
+
+                    <p>
+                        The query string is just the host. The values can contain entire DSLs.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Razor -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Razor Templates</h2>
+
+                    <pre><code class="language-plaintext">@razorSample</code></pre>
+
+                    <p>
+                        A language specialized for combining application logic with output markup.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Route templates -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>ASP.NET Route Templates</h2>
+
+                    <pre><code class="language-csharp">@routeSample</code></pre>
+
+                    <p>
+                        Parameters, types, constraints and matching rules — inside a string.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Logging templates -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Structured Logging Templates</h2>
+
+                    <pre><code class="language-csharp">@loggingSample</code></pre>
+
+                    <p>
+                        It looks like a string, but <code>{OrderId}</code> has defined syntax and semantics.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#dslCarousel"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"
+                  aria-hidden="true"></span>
+            <span class="visually-hidden">Previous example</span>
+        </button>
+
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#dslCarousel"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon"
+                  aria-hidden="true"></span>
+            <span class="visually-hidden">Next example</span>
+        </button>
+    </div>
+</section>

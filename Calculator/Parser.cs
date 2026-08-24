@@ -40,16 +40,32 @@ public class Parser(IEnumerable<Token> tokens)
     /// <returns>The parsed factor expression.</returns>
     private Expression ParseFactor()
     {
-        Expression expression = ParsePrimary();
+        Expression expression = ParseUnary();
 
         while (Match(TokenType.Multiply, TokenType.Divide))
         {
             Token operatorToken = Previous();
-            Expression right = ParsePrimary();
+            Expression right = ParseUnary();
             expression = new BinaryExpression(expression, operatorToken, right);
         }
 
         return expression;
+    }
+
+    /// <summary>
+    /// Parses a unary expression, which can be a primary expression or a unary operator followed by another unary expression.
+    /// </summary>
+    /// <returns></returns>
+    private Expression ParseUnary()
+    {
+        if (Match(TokenType.Plus, TokenType.Minus))
+        {
+            Token operatorToken = Previous();
+            Expression right = ParseUnary();
+            return new UnaryExpression(operatorToken, right);
+        }
+
+        return ParsePrimary();
     }
 
     /// <summary>
@@ -62,13 +78,6 @@ public class Parser(IEnumerable<Token> tokens)
     /// <exception cref="Exception"></exception>
     private Expression ParsePrimary()
     {
-        if (Match(TokenType.Plus, TokenType.Minus))
-        {
-            Token operatorToken = Previous();
-            Expression right = ParsePrimary();
-            return new UnaryExpression(operatorToken, right);
-        }
-
         if (Match(TokenType.Literal))
         {
             return new LiteralExpression(Previous());

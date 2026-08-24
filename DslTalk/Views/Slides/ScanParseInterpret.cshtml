@@ -1,0 +1,21 @@
+﻿@model SlideViewModel
+
+<section>
+    <h1>Building an Interpreter</h1>
+    <pre class="mermaid">
+        flowchart LR
+        scan["Scan"]-->parse["Parse"]
+        parse-->interpret["Interpret"]
+    </pre>
+
+    <p>Scanning - the process of converting plain text into a token stream</p>
+    <p>Parsing - consuming the token stream and building an AST</p>
+    <p>AST - the Abstract Syntax Tree is an in-memory representation of your grammar</p>
+    <p>Interpreter - consumes the AST</p>
+</section>
+
+@section Scripts {
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.16.1/+esm'
+    </script>
+}

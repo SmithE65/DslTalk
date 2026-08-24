@@ -1,0 +1,13 @@
+﻿@model SlideViewModel
+
+<section class="slide-prose">
+    <h1>Backus-Naur Form and Precedence</h1>
+
+    <pre><code>
+        expression  → term
+        term        → factor ( ("+" | "-") factor )*
+        factor      → unary ( ("*" | "/") unary )*
+        unary       → ("+" | "-") unary | primary
+        primary     → LITERAL | "(" expression ")"
+    </code></pre>
+</section>

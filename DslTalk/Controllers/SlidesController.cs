@@ -15,14 +15,26 @@ public class SlidesController : Controller
             ("Title", "DSL Talk"),
             ("AboutMe", "About Me"),
             ("Agenda", "Agenda"),
+            ("SectionWhyDsls", ("Why DSLs?")), // Title slide
             ("Motivation", "Motivation for this Talk"),
             ("Thesis", "In Short..."),
             ("DslDefinition", "DSL Definition"),
             ("FamiliarDsls", "Familiar DSLs"),
+            ("SectionInterpreter", "Anatomy of an Interpreter"), // Title slide
+            ("ScanParseInterpret", "Parts of an Interpreter"),
             ("CalculatorLanguage", "Calculator Language"),
+            ("BNF", "BNF"),
             ("ScannerAnimation", "Scanner Animation"),
             ("ParserAnimation", "Parser Animation"),
-            ("CalculatorDemo", "Calculator Demo")
+            ("CalculatorDemo", "Calculator Demo"),
+            ("SectionAccidentalDsls", "You May Already Have a Language"), // Title slide
+            ("FamiliarDslsRevisited", "Familiar DSLs Revisited"),
+            ("AccidentalDsl", "Accidental DSL"),
+            ("DontReinventTheWheel", "Don't Reinvent the Wheel"),
+            ("DontReinventTheWheel2", "Don't Reinvent the Wheel"),
+            ("SectionCreatingADsl", "Creating A DSL"), // Title slide
+            ("WhereToStart", "Where To Start"),
+            ("Summary", "Summary")
         };
 
         _deck = [.. slides.Select((s, i) => new SlideDefinition(i + 1, s.ViewName, s.Title))];

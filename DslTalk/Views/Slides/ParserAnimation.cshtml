@@ -1,30 +1,832 @@
 ﻿@model SlideViewModel
 
-@{
-    ViewData["Title"] = "Parser Animation";
-}
-
-<section class="demo-slide">
-    <header class="demo-header">
-        <div>
-            <h1>
-                How A Parser Works
-            </h1>
-        </div>
+<section class="parser-animation-slide">
+    <header>
+        <h1>Parsing: Tokens → Structure</h1>
     </header>
 
-    <div class="expression-panel">
-        <span class="panel-label">Expression</span>
+    <section class="parser-token-panel">
+        <div class="parser-panel-label">Token Stream</div>
+        <div id="parserTokens" class="parser-token-stream"></div>
+    </section>
 
-        <input class="expression-input"
-               value="(1 + 2) * 3" />
+    <div class="parser-middle">
+        <section class="parser-stack-panel">
+            <div class="parser-panel-label">Parse Stack</div>
+
+            <div id="parserStack" class="parser-stack">
+                <span class="parser-empty">Not started</span>
+            </div>
+        </section>
+
+        <section class="parser-trace-panel">
+            <div class="parser-panel-label">Parse Trace</div>
+
+            <div id="parserTrace" class="parser-trace">
+                <span class="parser-empty">Not started</span>
+            </div>
+        </section>
+
+        <section class="parser-ast-panel">
+            <div class="parser-panel-label">AST</div>
+
+            <div id="parserAst" class="parser-ast">
+                <span class="parser-empty">No expressions yet</span>
+            </div>
+        </section>
     </div>
 
-    <div>
-        <div>
+    <footer class="parser-controls">
+        <div class="parser-buttons">
+            <button id="parserPlay"
+                    class="btn btn-primary"
+                    type="button">
+                Play
+            </button>
+
+            <button id="parserStep"
+                    class="btn btn-outline-secondary"
+                    type="button">
+                Step
+            </button>
+
+            <button id="parserReset"
+                    class="btn btn-outline-secondary"
+                    type="button">
+                Reset
+            </button>
         </div>
 
-        <div>
+        <div id="parserStatus" class="parser-status">
+            Ready
         </div>
-    </div>
+    </footer>
 </section>
+
+@section Scripts {
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.16.1/+esm'
+
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: "neutral"
+        });
+
+        (() => {
+            const tokens = [
+                { type: "Literal", lexeme: "1" },
+                { type: "Plus", lexeme: "+" },
+                { type: "Literal", lexeme: "2" },
+                { type: "Multiply", lexeme: "*" },
+                { type: "Minus", lexeme: "-" },
+                { type: "Literal", lexeme: "3" },
+                { type: "Eof", lexeme: "EOF" }
+            ];
+
+            /*
+                Eventually this can come directly from the parser.
+
+                Event types:
+
+                  enter    - parser method entered / push stack
+                  return   - parser method returns / pop stack
+
+                  inspect  - look at current token
+                  match    - current grammar rule recognizes token
+                  consume  - token is consumed
+
+                  ast      - update AST visualization
+                  narrate  - explanation without changing parser state
+                  pause    - intentional presentation pause
+                  complete - parsing finished
+            */
+
+            const ast = {
+                literal1: `
+                    flowchart LR
+                        n1["1"]
+                `,
+
+                firstTwoLiterals: `
+                    flowchart LR
+                        n1["1"]
+                        n2["2"]
+                        `,
+
+                firstThreeLiterals: `
+                    flowchart LR
+                        n1["1"]
+                        n2["2"]
+                        n3["3"]
+                        `,
+
+                unary: `
+                    flowchart LR
+                        n1["1"]
+                        n2["2"]
+                        n3["-"] --> n4["3"]
+                `,
+
+                factor: `
+                    flowchart LR
+                        n1["1"]
+
+                        n2["*"] --> n3["2"]
+                        n2 --> n4["-"]
+                        n4 --> n5["3"]
+                `,
+
+                complete: `
+                    flowchart LR
+                        n1["+"] --> n2["1"]
+                        n1 --> n3["*"]
+
+                        n3 --> n4["2"]
+                        n3 --> n5["-"]
+
+                        n5 --> n6["3"]
+                `
+            };
+
+            const steps = [
+                // --------------------------------------------------
+                // Parse the first literal: 1
+                // --------------------------------------------------
+
+                {
+                    type: "enter",
+                    rule: "Expression",
+                    text: "Enter ParseExpression()"
+                },
+                {
+                    type: "enter",
+                    rule: "Term",
+                    text: "Expression asks Term for an expression"
+                },
+                {
+                    type: "enter",
+                    rule: "Factor",
+                    text: "Term asks Factor"
+                },
+                {
+                    type: "enter",
+                    rule: "Unary",
+                    text: "Factor asks Unary"
+                },
+                {
+                    type: "enter",
+                    rule: "Primary",
+                    text: "Unary asks Primary"
+                },
+
+                {
+                    type: "inspect",
+                    token: 0,
+                    text: "Primary examines Literal '1'"
+                },
+                {
+                    type: "match",
+                    token: 0,
+                    text: "Primary matches Literal"
+                },
+                {
+                    type: "consume",
+                    token: 0,
+                    text: "Consume Literal '1'"
+                },
+
+                {
+                    type: "ast",
+                    diagram: ast.literal1,
+                    text: "Create LiteralExpression(1)"
+                },
+
+                {
+                    type: "return",
+                    rule: "Primary",
+                    value: "Literal(1)",
+                    text: "Primary returns Literal(1)"
+                },
+                {
+                    type: "return",
+                    rule: "Unary",
+                    value: "Literal(1)",
+                    text: "Unary returns Literal(1)"
+                },
+
+                {
+                    type: "narrate",
+                    text: "Factor sees no * or /"
+                },
+
+                {
+                    type: "return",
+                    rule: "Factor",
+                    value: "Literal(1)",
+                    text: "Factor returns Literal(1)"
+                },
+
+                // --------------------------------------------------
+                // Term sees +
+                // --------------------------------------------------
+
+                {
+                    type: "inspect",
+                    token: 1,
+                    text: "Term examines '+'"
+                },
+                {
+                    type: "match",
+                    token: 1,
+                    text: "Term matches Plus"
+                },
+                {
+                    type: "consume",
+                    token: 1,
+                    text: "Consume Plus"
+                },
+
+                {
+                    type: "narrate",
+                    text: "Term now needs another Factor for the right side of +"
+                },
+
+                // --------------------------------------------------
+                // Parse the 2
+                // --------------------------------------------------
+
+                {
+                    type: "enter",
+                    rule: "Factor",
+                    text: "Enter ParseFactor()"
+                },
+                {
+                    type: "enter",
+                    rule: "Unary",
+                    text: "Factor asks Unary"
+                },
+                {
+                    type: "enter",
+                    rule: "Primary",
+                    text: "Unary asks Primary"
+                },
+
+                {
+                    type: "inspect",
+                    token: 2,
+                    text: "Primary examines Literal '2'"
+                },
+                {
+                    type: "match",
+                    token: 2,
+                    text: "Primary matches Literal"
+                },
+                {
+                    type: "consume",
+                    token: 2,
+                    text: "Consume Literal '2'"
+                },
+
+                {
+                    type: "ast",
+                    diagram: ast.firstTwoLiterals,
+                    text: "Create LiteralExpression(2)"
+                },
+
+                {
+                    type: "return",
+                    rule: "Primary",
+                    value: "Literal(2)",
+                    text: "Primary returns Literal(2)"
+                },
+                {
+                    type: "return",
+                    rule: "Unary",
+                    value: "Literal(2)",
+                    text: "Unary returns Literal(2)"
+                },
+
+                // --------------------------------------------------
+                // This is the important precedence moment.
+                // Factor sees * and DOES NOT RETURN.
+                // --------------------------------------------------
+
+                {
+                    type: "inspect",
+                    token: 3,
+                    text: "Factor examines '*'"
+                },
+                {
+                    type: "match",
+                    token: 3,
+                    text: "Factor matches Multiply"
+                },
+
+                {
+                    type: "pause",
+                    text: "Factor sees * — so it does NOT return 2 to Term yet."
+                },
+
+                {
+                    type: "consume",
+                    token: 3,
+                    text: "Consume Multiply"
+                },
+
+                {
+                    type: "narrate",
+                    text: "Factor needs another Unary for the right side of *"
+                },
+
+                // --------------------------------------------------
+                // Parse unary -3
+                // --------------------------------------------------
+
+                {
+                    type: "enter",
+                    rule: "Unary",
+                    text: "Enter ParseUnary()"
+                },
+
+                {
+                    type: "inspect",
+                    token: 4,
+                    text: "Unary examines '-'"
+                },
+                {
+                    type: "match",
+                    token: 4,
+                    text: "Unary matches Minus"
+                },
+                {
+                    type: "consume",
+                    token: 4,
+                    text: "Consume Minus"
+                },
+
+                {
+                    type: "pause",
+                    text: "Here is actual recursion: Unary parses another Unary."
+                },
+
+                {
+                    type: "enter",
+                    rule: "Unary",
+                    text: "ParseUnary() recursively calls ParseUnary()"
+                },
+                {
+                    type: "enter",
+                    rule: "Primary",
+                    text: "Inner Unary asks Primary"
+                },
+
+                {
+                    type: "inspect",
+                    token: 5,
+                    text: "Primary examines Literal '3'"
+                },
+                {
+                    type: "match",
+                    token: 5,
+                    text: "Primary matches Literal"
+                },
+                {
+                    type: "consume",
+                    token: 5,
+                    text: "Consume Literal '3'"
+                },
+
+                {
+                    type: "ast",
+                    diagram: ast.firstThreeLiterals,
+                    text: "Create LiteralExpression(3)"
+                },
+                {
+                    type: "return",
+                    rule: "Unary",
+                    value: "Literal(3)",
+                    text: "Inner Unary returns Literal(3)"
+                },
+
+                {
+                    type: "ast",
+                    diagram: ast.unary,
+                    text: "Build UnaryExpression(-, 3)"
+                },
+
+                {
+                    type: "return",
+                    rule: "Unary",
+                    value: "Unary(-3)",
+                    text: "Outer Unary returns -3"
+                },
+
+                // --------------------------------------------------
+                // Factor can finally build 2 * -3
+                // --------------------------------------------------
+
+                {
+                    type: "ast",
+                    diagram: ast.factor,
+                    text: "Build BinaryExpression(2, *, -3)"
+                },
+
+                {
+                    type: "narrate",
+                    text: "Factor sees no more * or /"
+                },
+
+                {
+                    type: "return",
+                    rule: "Factor",
+                    value: "2 * -3",
+                    text: "Factor finally returns the complete 2 * -3 expression"
+                },
+
+                // --------------------------------------------------
+                // Term finally receives the entire Factor.
+                // --------------------------------------------------
+
+                {
+                    type: "ast",
+                    diagram: ast.complete,
+                    text: "Build BinaryExpression(1, +, 2 * -3)"
+                },
+
+                {
+                    type: "inspect",
+                    token: 6,
+                    text: "Term reaches EOF"
+                },
+
+                {
+                    type: "return",
+                    rule: "Term",
+                    value: "1 + (2 * -3)",
+                    text: "Term returns the complete expression"
+                },
+
+                {
+                    type: "return",
+                    rule: "Expression",
+                    value: "1 + (2 * -3)",
+                    text: "Expression returns"
+                },
+
+                {
+                    type: "complete",
+                    text: "Parsing complete — the token stream became an AST."
+                }
+            ];
+
+            const tokenContainer =
+                document.getElementById("parserTokens");
+
+            const stackContainer =
+                document.getElementById("parserStack");
+
+            const traceContainer =
+                document.getElementById("parserTrace");
+
+            const astContainer =
+                document.getElementById("parserAst");
+
+            const statusElement =
+                document.getElementById("parserStatus");
+
+            const playButton =
+                document.getElementById("parserPlay");
+
+            const stepButton =
+                document.getElementById("parserStep");
+
+            const resetButton =
+                document.getElementById("parserReset");
+
+            let stack = [];
+            let index = 0;
+            let playing = false;
+            let generation = 0;
+            let mermaidSequence = 0;
+
+            initialize();
+
+            playButton.addEventListener("click", () => {
+                if (playing)
+                    pause();
+                else
+                    play();
+            });
+
+            stepButton.addEventListener("click", async () => {
+                pause();
+
+                if (index < steps.length)
+                    await executeNext(false);
+            });
+
+            resetButton.addEventListener("click", reset);
+
+            function initialize() {
+                renderTokens();
+                reset();
+            }
+
+            function renderTokens() {
+                tokenContainer.replaceChildren();
+
+                tokens.forEach((token, index) => {
+                    const element =
+                        document.createElement("div");
+
+                    element.className = "parser-token";
+                    element.dataset.index = index;
+
+                    const lexeme =
+                        document.createElement("span");
+
+                    lexeme.className = "parser-token-lexeme";
+                    lexeme.textContent = token.lexeme;
+
+                    const type =
+                        document.createElement("span");
+
+                    type.className = "parser-token-type";
+                    type.textContent = token.type;
+
+                    element.append(
+                        lexeme,
+                        type);
+
+                    tokenContainer.appendChild(element);
+                });
+            }
+
+            async function play() {
+                if (index >= steps.length)
+                    reset();
+
+                playing = true;
+                playButton.textContent = "Pause";
+
+                const myGeneration = generation;
+
+                while (
+                    playing &&
+                    index < steps.length &&
+                    myGeneration === generation) {
+
+                    const keepGoing =
+                        await executeNext(true);
+
+                    if (!keepGoing)
+                        break;
+                }
+
+                if (myGeneration === generation) {
+                    playing = false;
+
+                    playButton.textContent =
+                        index >= steps.length
+                            ? "Replay"
+                            : "Resume";
+                }
+            }
+
+            function pause() {
+                playing = false;
+                playButton.textContent = "Resume";
+            }
+
+            async function executeNext(autoPlaying) {
+                const step = steps[index++];
+
+                switch (step.type) {
+                    case "enter":
+                        stack.push(step.rule);
+                        renderStack();
+                        appendTrace(step.text, "enter");
+                        break;
+
+                    case "return":
+                        appendTrace(
+                            step.text ??
+                            `${step.rule} returns ${step.value ?? ""}`,
+                            "return");
+
+                        stack.pop();
+                        renderStack();
+                        break;
+
+                    case "inspect":
+                        focusToken(step.token, "inspect");
+                        appendTrace(step.text, "inspect");
+                        break;
+
+                    case "match":
+                        focusToken(step.token, "match");
+                        appendTrace(step.text, "match");
+                        break;
+
+                    case "consume":
+                        consumeToken(step.token);
+                        appendTrace(step.text, "consume");
+                        break;
+
+                    case "narrate":
+                        appendTrace(step.text, "narrate");
+                        break;
+
+                    case "ast":
+                        appendTrace(step.text, "ast");
+                        await renderAst(step.diagram);
+                        break;
+
+                    case "pause":
+                        appendTrace(step.text, "pause");
+                        statusElement.textContent = step.text;
+
+                        if (autoPlaying) {
+                            playing = false;
+                            playButton.textContent = "Resume";
+                        }
+
+                        return false;
+
+                    case "complete":
+                        focusToken(6, "match");
+                        appendTrace(step.text, "complete");
+                        statusElement.textContent = step.text;
+                        break;
+                }
+
+                if (step.type !== "pause")
+                    statusElement.textContent = step.text ?? "";
+
+                await delay(delayFor(step.type));
+
+                return true;
+            }
+
+            function renderStack() {
+                stackContainer.replaceChildren();
+
+                if (stack.length === 0) {
+                    const empty = document.createElement("span");
+                    empty.className = "parser-empty";
+                    empty.textContent = "Empty";
+                    stackContainer.appendChild(empty);
+                    return;
+                }
+
+                stack.forEach((rule, depth) => {
+                    const frame =
+                        document.createElement("div");
+
+                    frame.className = "parser-stack-frame";
+
+                    if (depth === stack.length - 1)
+                        frame.classList.add("active");
+
+                    frame.style.marginLeft =
+                        `${depth * 1.1}rem`;
+
+                    frame.textContent =
+                        `Parse${rule}()`;
+
+                    stackContainer.appendChild(frame);
+                });
+            }
+
+            function appendTrace(text, kind) {
+                traceContainer
+                    .querySelector(".parser-empty")
+                    ?.remove();
+
+                traceContainer
+                    .querySelectorAll(".parser-trace-line.current")
+                    .forEach(line =>
+                        line.classList.remove("current"));
+
+                const line =
+                    document.createElement("div");
+
+                line.className =
+                    `parser-trace-line current ${kind}`;
+
+                line.textContent = text;
+
+                traceContainer.appendChild(line);
+
+                traceContainer.scrollTop =
+                    traceContainer.scrollHeight;
+            }
+
+            function focusToken(index, mode) {
+                tokenContainer
+                    .querySelectorAll(".parser-token")
+                    .forEach(token => {
+                        token.classList.remove(
+                            "inspecting",
+                            "matching");
+                    });
+
+                const token =
+                    tokenContainer.querySelector(
+                        `[data-index="${index}"]`);
+
+                token?.classList.add(
+                    mode === "match"
+                        ? "matching"
+                        : "inspecting");
+            }
+
+            function consumeToken(index) {
+                const token =
+                    tokenContainer.querySelector(
+                        `[data-index="${index}"]`);
+
+                token?.classList.remove(
+                    "inspecting",
+                    "matching");
+
+                token?.classList.add("consumed");
+
+                const next =
+                    tokenContainer.querySelector(
+                        `[data-index="${index + 1}"]`);
+
+                if (next)
+                    next.classList.add("inspecting");
+            }
+
+            async function renderAst(source) {
+                astContainer.replaceChildren();
+
+                const diagram = document.createElement("div");
+                diagram.className = "mermaid";
+                diagram.textContent = source.trim();
+
+                astContainer.appendChild(diagram);
+
+                await mermaid.run({
+                    nodes: [diagram]
+                });
+            }
+
+            function reset() {
+                generation++;
+                playing = false;
+                index = 0;
+                stack = [];
+
+                renderTokens();
+                renderStack();
+
+                traceContainer.innerHTML =
+                    '<span class="parser-empty">Not started</span>';
+
+                astContainer.innerHTML =
+                    '<span class="parser-empty">No expressions yet</span>';
+
+                tokenContainer
+                    .querySelector('[data-index="0"]')
+                    ?.classList.add("inspecting");
+
+                statusElement.textContent = "Ready";
+                playButton.textContent = "Play";
+            }
+
+            function delayFor(type) {
+                switch (type) {
+                    case "enter":
+                    case "return":
+                        return 225;
+
+                    case "inspect":
+                        return 325;
+
+                    case "match":
+                        return 400;
+
+                    case "consume":
+                        return 300;
+
+                    case "ast":
+                        return 550;
+
+                    case "narrate":
+                        return 450;
+
+                    default:
+                        return 250;
+                }
+            }
+
+            function delay(milliseconds) {
+                return new Promise(resolve =>
+                    setTimeout(resolve, milliseconds));
+            }
+        })();
+    </script>
+}

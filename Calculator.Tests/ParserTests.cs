@@ -32,6 +32,25 @@ public class ParserTests
     }
 
     [Fact]
+    public void ParseMultipleBinaryExpressions()
+    {
+        const string input = "1 + 1 + 1";
+        var scanner = new Scanner(input);
+        var tokens = scanner.Scan();
+        var parser = new Parser(tokens);
+        var expression = parser.Parse();
+        Assert.NotNull(expression);
+        var binaryExpression = Assert.IsType<BinaryExpression>(expression);
+        var top = Assert.IsType<BinaryExpression>(binaryExpression.Left);
+        var left = Assert.IsType<LiteralExpression>(top.Left);
+        Assert.Equal(1, left.Value);
+        var right = Assert.IsType<LiteralExpression>(top.Right);
+        Assert.Equal(1, right.Value);
+        var rightLiteral = Assert.IsType<LiteralExpression>(binaryExpression.Right);
+        Assert.Equal(1, rightLiteral.Value);
+    }
+
+    [Fact]
     public void HandlesPrecedenceCorrectly()
     {
         const string input = "1 + 2 * 3";
@@ -119,6 +138,23 @@ public class ParserTests
         var unaryExpression = Assert.IsType<UnaryExpression>(expression);
         Assert.Equal(TokenType.Minus, unaryExpression.Token.Type);
         var literalExpression = Assert.IsType<LiteralExpression>(unaryExpression.Right);
+        Assert.Equal(5, literalExpression.Value);
+    }
+
+    [Fact]
+    public void ParseDoubleUnaryExpression()
+    {
+        const string input = "--5";
+        var scanner = new Scanner(input);
+        var tokens = scanner.Scan();
+        var parser = new Parser(tokens);
+        var expression = parser.Parse();
+        Assert.NotNull(expression);
+        var outerUnaryExpression = Assert.IsType<UnaryExpression>(expression);
+        Assert.Equal(TokenType.Minus, outerUnaryExpression.Token.Type);
+        var innerUnaryExpression = Assert.IsType<UnaryExpression>(outerUnaryExpression.Right);
+        Assert.Equal(TokenType.Minus, innerUnaryExpression.Token.Type);
+        var literalExpression = Assert.IsType<LiteralExpression>(innerUnaryExpression.Right);
         Assert.Equal(5, literalExpression.Value);
     }
 

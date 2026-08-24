@@ -1,0 +1,205 @@
+﻿@model SlideViewModel
+
+@{
+    var fluentSample = """
+    Alert.For("longrunningquery")
+        .When(x => x.Duration > TimeSpan.FromSeconds(30))
+        .Then.Log("Query has been running for more than 30 seconds.");
+    """;
+
+    var jsonSample = """
+    {
+      "type": "longrunningquery",
+      "condition": { "duration": { "gt": "30s" } },
+      "action": {
+        "type": "log",
+        "message": "Query has been running for more than 30 seconds."
+      }
+    }
+    """;
+
+    var stringSample = """
+    longrunningquery: duration > 30s
+        => log "Query has been running for more than 30 seconds."
+    """;
+}
+
+<section class="bullet-slide">
+    <h1>You May Already Have a DSL.</h1>
+
+    <div id="dslCarousel"
+         class="carousel slide dsl-carousel"
+         data-bs-theme="dark"
+         data-bs-interval="false"
+         data-bs-touch="false">
+
+        <div class="carousel-indicators">
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="0"
+                    class="active"
+                    aria-current="true"
+                    aria-label="Fluent API"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="1"
+                    aria-label="Behavioral configuration"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="2"
+                    aria-label="Magic string"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="3"
+                    aria-label="Rule table"></button>
+
+            <button type="button"
+                    data-bs-target="#dslCarousel"
+                    data-bs-slide-to="4"
+                    aria-label="Visual editor"></button>
+        </div>
+
+        <div class="carousel-inner">
+
+            <!-- Fluent API -->
+            <div class="carousel-item active">
+                <div class="dsl-example">
+                    <h2>Fluent API</h2>
+
+                    <pre><code class="language-csharp">@fluentSample</code></pre>
+
+                    <p>
+                        Vocabulary and composition expressed through C#.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Behavioral JSON -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Behavioral Configuration</h2>
+
+                    <pre><code class="language-json">@jsonSample</code></pre>
+
+                    <p>
+                        Configuration stops describing data and starts describing behavior.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Magic string -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>The Magic String</h2>
+
+                    <pre><code class="language-plaintext">@stringSample</code></pre>
+
+                    <p>
+                        It started as "just a string."
+                    </p>
+                </div>
+            </div>
+
+            <!-- Rule table -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Rule Table</h2>
+
+                    <div class="dsl-rule-table-wrap">
+                        <table class="table dsl-rule-table">
+                            <thead>
+                                <tr>
+                                    <th>Alert</th>
+                                    <th>Field</th>
+                                    <th>Operator</th>
+                                    <th>Value</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Long Running Query</td>
+                                    <td>Duration</td>
+                                    <td>&gt;</td>
+                                    <td>30 sec</td>
+                                    <td>Log message</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>
+                        Tables can encode vocabulary, structure, and semantics too.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visual editor -->
+            <div class="carousel-item">
+                <div class="dsl-example">
+                    <h2>Visual Editor</h2>
+
+                    <div class="dsl-rule-editor">
+                        <div class="dsl-rule-editor-row">
+                            <span class="dsl-rule-keyword">WHEN</span>
+
+                            <select class="form-select">
+                                <option selected>Duration</option>
+                            </select>
+
+                            <select class="form-select">
+                                <option selected>is greater than</option>
+                            </select>
+
+                            <input class="form-control"
+                                   type="number"
+                                   value="30" />
+
+                            <select class="form-select dsl-rule-unit">
+                                <option selected>seconds</option>
+                            </select>
+                        </div>
+
+                        <div class="dsl-rule-editor-row">
+                            <span class="dsl-rule-keyword">THEN</span>
+
+                            <select class="form-select dsl-rule-action">
+                                <option selected>Log</option>
+                            </select>
+
+                            <input class="form-control dsl-rule-message"
+                                   type="text"
+                                   value="Query has been running for more than 30 seconds." />
+                        </div>
+                    </div>
+
+                    <p>
+                        No text syntax. No scanner. Maybe no parser. Still a language.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#dslCarousel"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"
+                  aria-hidden="true"></span>
+            <span class="visually-hidden">Previous example</span>
+        </button>
+
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#dslCarousel"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon"
+                  aria-hidden="true"></span>
+            <span class="visually-hidden">Next example</span>
+        </button>
+    </div>
+</section>

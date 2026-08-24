@@ -1,23 +1,45 @@
 ﻿@model SlideViewModel
 
-<section class="slide-prose">
-    <h1>Motivation aka "Why talk about DSLs?"</h1>
+<section class="motivation-slide">
+    <h1>Why Talk About DSLs?</h1>
 
-    <p>
-        Crafting Interpreters by Robert Nystrom<br/>
-        <blockquote>
-            Crafting Interpreters contains everything you need to implement a full-featured, efficient scripting language.
-            You’ll learn both high-level concepts around parsing and semantics and gritty details like bytecode representation and garbage collection.
-            Your brain will light up with new ideas, and your hands will get dirty and calloused. It’s a blast.
-        </blockquote>
-    </p>
+    <div class="motivation-sources">
+        <article class="motivation-card">
+            <div class="motivation-label">THE BOOK</div>
 
-    <p>
-        SchemaShift - a JSON to JSON mapper<br/>
-        A mapping engine for transforming one JSON shape to another with a business user friendly DSL. (Or at least that's the goal.)
-    </p>
+            <h2>Crafting Interpreters</h2>
+            <div class="motivation-byline">Robert Nystrom</div>
 
-    <p>
-        They're not magic! It can be surprising just how straightforward building an interpreter can be.
-    </p>
+            <blockquote>
+                “Crafting Interpreters contains everything you need to implement
+                a full-featured, efficient scripting language...
+                Your brain will light up with new ideas... It’s a blast.”
+            </blockquote>
+        </article>
+
+        <article class="motivation-card">
+            <div class="motivation-label">THE PROJECT</div>
+
+            <h2>SchemaShift</h2>
+
+            <p>
+                A JSON-to-JSON mapping engine with a business-user-friendly DSL
+                for transforming one document shape into another.
+            </p>
+
+            <p class="motivation-aside">
+                Or at least that's the goal.
+            </p>
+        </article>
+    </div>
+
+    <div class="motivation-payoff">
+        <div class="motivation-label">THE SURPRISE</div>
+
+        <strong>They're not magic.</strong>
+
+        <span>
+            Building an interpreter can be surprisingly straightforward.
+        </span>
+    </div>
 </section>
