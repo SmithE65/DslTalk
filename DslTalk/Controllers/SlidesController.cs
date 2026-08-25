@@ -40,8 +40,8 @@ public class SlidesController : Controller
             ("Types", "Types Exist"),
             ("SchemaShiftTypes", "Schema Shift Types"),
             ("ScopeCreep", "Language Evolution"),
-            ("Summary", "Summary"),
-            ("SearchDemo", "Search Demo")
+            ("SearchDemo", "Search Demo"),
+            ("Summary", "Thank You")
         };
 
         _deck = [.. slides.Select((s, i) => new SlideDefinition(i + 1, s.ViewName, s.Title))];
